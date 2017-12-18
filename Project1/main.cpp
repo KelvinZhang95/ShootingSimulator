@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm\gtx\euler_angles.hpp>
 
 #include "shader.h"
 #include "Camera.h"
@@ -14,13 +15,16 @@
 #include <iostream>
 #include <string>
 using namespace std;
+#define PI 3.1415926f
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void creatGameobject();
 void processInput(GLFWwindow *window);
-void setTexture(unsigned int *texture, string  filepath, bool ispng);
+void updateLogic();
+//void setTexture(unsigned int *texture, string  filepath, bool ispng);
 
 // settings
 const unsigned int SCR_WIDTH = 1000;
@@ -128,6 +132,7 @@ int main()
 		// input
 		processInput(window);
 
+		//updateLogic();
 		// 1. Render depth of scene to texture (from ligth's perspective)
 		// - Get light projection/view matrix.
 		//glm::vec3 lightInvDir = glm::vec3(0.5f, 2, 2);
@@ -199,10 +204,15 @@ int main()
 
 
 		for (int i = 0; i < gameobjects.size(); i++) {
-			model = glm::mat4(1.0f);
+			model = glm::mat4();
+			//model = glm::eulerAngleZ(gameobjects[i].rotation.z)*glm::eulerAngleY(gameobjects[i].rotation.y)*glm::eulerAngleX(gameobjects[i].rotation.x);
+			glm::mat4 rotation = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
 			model = glm::translate(model, gameobjects[i].position);
 			model = glm::scale(model, gameobjects[i].scale);
-			model = glm::rotate(model, 0.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+			model = glm::rotate(model, gameobjects[i].rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, gameobjects[i].rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+			model = glm::rotate(model, gameobjects[i].rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+			//model = model * rotation;
 			lightingShader.setMat4("model", model);
 			gameobjects[i].model.Draw(lightingShader,true);
 		}
@@ -256,7 +266,13 @@ void processInput(GLFWwindow *window)
 		camera.Position = tryPosition;
 	}
 	
-	//cout << "out Input()" << camera.Position.x << "," <<camera.Position.y << "," << camera.Position.z <<endl;
+	cout << "out Input()" << camera.Position.x << "," <<camera.Position.y << "," << camera.Position.z <<endl;
+}
+
+//update logic 
+void updateLogic() {
+	//gameobjects[2].setRotation(glm::vec3(0,-camera.Yaw / 180 * PI, -camera.Pitch / 180 * PI));
+	gameobjects[2].setPosition(camera.Position + glm::vec3(0.2,0.2,0.2));
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -321,29 +337,35 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		isSpeed = false;
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 		isPerspective = !isPerspective;
-	if (key == GLFW_KEY_C && action == GLFW_PRESS)
-		creatGameobject();
+	if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+		gameobjects[0].position = camera.Position;
+	}
+		//creatGameobject();
 }
 void creatGameobject() {
 	string path1 = "resources/model/dragon/dragon.obj";
 	string path2 = "resources/model/nanosuit/nanosuit.obj";
-	string path3 = "resources/model/scene/scene.obj";
+	//string path3 = "resources/model/scene/scene.obj";
 	string path4 = "resources/model/M4CQB/M4CQB.FBX";
+	string path5 = "resources/model/dao/dao.fbx";
 
-
-	Gameobject dragon(path1, glm::vec3(-2.0f, 3.0f, -3.0f), glm::vec3(0.001f, 0.001f, 0.001f));
-	//dragon.isActive = false;
+	Gameobject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
+	dragon.isActive = false;
 	gameobjects.push_back(dragon);
 
-	Gameobject man(path2, glm::vec3(6.5f, 0.5f, 2.0f), glm::vec3(0.1f, 0.1f, 0.1f));
+	Gameobject man(path2, glm::vec3(-5.0f, 3.8f, 7.4f), glm::vec3(0.1f, 0.1f, 0.1f));
 	//man.isActive = false;
 	gameobjects.push_back(man);
 
-	Gameobject scene(path3, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3, 3, 3));
-	scene.isActive = false;
-	gameobjects.push_back(scene);
+	//Gameobject scene(path3, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3, 3, 3));
+	//scene.isActive = false;
+	//gameobjects.push_back(scene);
 
-	Gameobject M4(path4, glm::vec3(6.5f, 0.5f, 2.0f), glm::vec3(0.005f, 0.005f, 0.005f));
+	Gameobject M4(path4, glm::vec3(-5.0f, 5.5f, 7.4f), glm::vec3(0.005f, 0.005f, 0.005f), glm::vec3(PI, PI, 0));
 	M4.isActive = false;
 	gameobjects.push_back(M4);
+
+	Gameobject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+	dao.isActive = false;
+	gameobjects.push_back(dao);
 }
