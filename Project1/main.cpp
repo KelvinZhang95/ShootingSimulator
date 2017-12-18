@@ -328,6 +328,8 @@ void creatGameobject() {
 	string path1 = "resources/model/dragon/dragon.obj";
 	string path2 = "resources/model/nanosuit/nanosuit.obj";
 	string path3 = "resources/model/scene/scene.obj";
+	string path4 = "resources/model/M4CQB/M4CQB.FBX";
+
 
 	Gameobject dragon(path1, glm::vec3(-2.0f, 3.0f, -3.0f), glm::vec3(0.001f, 0.001f, 0.001f));
 	//dragon.isActive = false;
@@ -340,4 +342,8 @@ void creatGameobject() {
 	Gameobject scene(path3, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3, 3, 3));
 	scene.isActive = false;
 	gameobjects.push_back(scene);
+
+	Gameobject M4(path4, glm::vec3(6.5f, 0.5f, 2.0f), glm::vec3(0.005f, 0.005f, 0.005f));
+	M4.isActive = false;
+	gameobjects.push_back(M4);
 }
