@@ -14,9 +14,11 @@
 
 #include <iostream>
 #include <string>
+#include <math.h>
+#include <fstream>
 using namespace std;
 #define PI 3.1415926f
-
+glm::mat4 TRSum;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -41,12 +43,15 @@ float lastX = SCR_WIDTH / 2.0;
 float lastY = SCR_HEIGHT / 2.0;
 
 glm::vec3 lightPos(8.0f, 6.0f, 9.0f);
-Camera camera(glm::vec3(3.0f, 3.0f, 11.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 11.0f));
 vector<Gameobject> gameobjects;
+
+double px, py, pz, rx, ry, rz;
 
 bool isPerspective  = true;
 int main()
 {
+	
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -116,6 +121,7 @@ int main()
 	lightingShader.setInt("diffuseTexture", 0);
 	lightingShader.setInt("shadowMap", 1);
 
+	//gameobjects.push_back(camera);
 	creatGameobject();
 	
 	//glm::vec3 lightPos(1.0f, 6.0f, 1.0f);
@@ -132,7 +138,7 @@ int main()
 		// input
 		processInput(window);
 
-		//updateLogic();
+		updateLogic();
 		// 1. Render depth of scene to texture (from ligth's perspective)
 		// - Get light projection/view matrix.
 		//glm::vec3 lightInvDir = glm::vec3(0.5f, 2, 2);
@@ -174,11 +180,11 @@ int main()
 
 		//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		//glm::mat4 view;
-		//view = glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
+		//view = glm::lookAt(camera.position, camera.position + camera.Front, camera.Up);
 		//lightingShader.setMat4("view", view);
 		//lightingShader.setMat4("projection", projection);
 
-		lightingShader.setVec3("viewPos", camera.Position);
+		lightingShader.setVec3("viewPos", camera.position);
 		lightingShader.setVec3("lightPos", lightPos);
 
 		lightingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -196,8 +202,8 @@ int main()
 		}
 
 		glm::mat4 view;
-		view = glm::lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
-		//cout << "camera.Position : " << camera.Position.x << "," <<camera.Position.y << "," << camera.Position.z << endl;
+		view = glm::lookAt(camera.position, camera.position + camera.Front, camera.Up);
+		//cout << "camera.position : " << camera.position.x << "," <<camera.position.y << "," << camera.position.z << endl;
 
 		lightingShader.setMat4("view", view);
 		lightingShader.setMat4("projection", projection);
@@ -206,13 +212,32 @@ int main()
 		for (int i = 0; i < gameobjects.size(); i++) {
 			model = glm::mat4();
 			//model = glm::eulerAngleZ(gameobjects[i].rotation.z)*glm::eulerAngleY(gameobjects[i].rotation.y)*glm::eulerAngleX(gameobjects[i].rotation.x);
-			glm::mat4 rotation = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
-			model = glm::translate(model, gameobjects[i].position);
-			model = glm::scale(model, gameobjects[i].scale);
-			model = glm::rotate(model, gameobjects[i].rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::rotate(model, gameobjects[i].rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-			model = glm::rotate(model, gameobjects[i].rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+			//glm::mat4 rotation = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
+			glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
+			//model = glm::translate(model, gameobjects[i].position);
+			glm::mat4 rot = glm::mat4();
+			rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
+			/*if (i == 100) {
+				model = model * TRSum;
+			}
+			else {
+
+				model = glm::rotate(model, gameobjects[i].rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+				model = glm::rotate(model, gameobjects[i].rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+				model = glm::rotate(model, gameobjects[i].rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+			}*/
+			
+			glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
+
+			//model = glm::scale(glm::mat4(), gameobjects[i].scale);
 			//model = model * rotation;
+			if (i == 1) {
+				model = TRSum * model;
+			}
+			else {
+				model = trans * rot * sca;
+
+			}
 			lightingShader.setMat4("model", model);
 			gameobjects[i].model.Draw(lightingShader,true);
 		}
@@ -236,23 +261,34 @@ void processInput(GLFWwindow *window)
 	float cameraSpeed = !isSpeed ? speed * deltaTime : speed * 4 * deltaTime;
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		hasMoved = true;
-		tryPosition = camera.Position + cameraSpeed * camera.Front;
+		tryPosition = camera.position + cameraSpeed * camera.Front;
 	}
 		
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		hasMoved = true;
-		tryPosition = camera.Position - cameraSpeed * camera.Front;
+		tryPosition = camera.position - cameraSpeed * camera.Front;
 
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 		hasMoved = true;
-		tryPosition = camera.Position - glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraSpeed;
+		tryPosition = camera.position - glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraSpeed;
 
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		hasMoved = true;
-		tryPosition = camera.Position + glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraSpeed;
+		tryPosition = camera.position + glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraSpeed;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+		gameobjects[0].position = gameobjects[0].position + glm::vec3(0.1, 0, 0);
+	}
+	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+		gameobjects[0].setRotation(gameobjects[0].rotation + glm::vec3(1 * PI / 180, 0, 0));
+	}
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+		gameobjects[0].setRotation(gameobjects[0].rotation + glm::vec3(0, 1 * PI / 180, 0));
+
 	}
 	if (hasMoved) {
 		for (int i = 0; i < gameobjects.size(); i++) {
@@ -263,16 +299,82 @@ void processInput(GLFWwindow *window)
 				}
 			}
 		}
-		camera.Position = tryPosition;
+		camera.position = tryPosition;
 	}
 	
-	cout << "out Input()" << camera.Position.x << "," <<camera.Position.y << "," << camera.Position.z <<endl;
+	cout << "camera.rotation" << camera.rotation.x << ", " << camera.rotation.y << ", " << camera.rotation.z <<endl;
 }
 
 //update logic 
 void updateLogic() {
-	//gameobjects[2].setRotation(glm::vec3(0,-camera.Yaw / 180 * PI, -camera.Pitch / 180 * PI));
-	gameobjects[2].setPosition(camera.Position + glm::vec3(0.2,0.2,0.2));
+	ifstream in;
+	in.open("in.txt");
+	if (in.is_open())
+	{
+		in >> px >> py >> pz >> rx >> ry >> rz;
+	}
+	else {
+		std::cout << "error" << "\n";
+	}
+	in.close();
+	std::cout << pz << py << pz << rx << ry << rz << "\n";
+
+
+	//for (int i = 0; i < gameobjects.size(); i++) {
+	//	if (gameobjects[i].parent != NULL) {
+	//		Object * parent = gameobjects[i].parent;
+
+	//		gameobjects[i].setRotation(parent->rotation + gameobjects[i].localRotation);
+
+	//		glm::vec4 localPosition4(gameobjects[i].localPosition, 1);
+	//		glm::mat4 parentRotationMat4 = glm::rotate(glm::mat4(), parent->rotation.y, glm::vec3(0, 1, 0));
+	//		parentRotationMat4 = glm::rotate(parentRotationMat4, parent->rotation.x, glm::vec3(1, 0, 0));
+	//		glm::vec4 worldPosition4 = parentRotationMat4 * localPosition4;
+	//		glm::vec3 worldPosition3(worldPosition4.x, worldPosition4.y, worldPosition4.z);
+	//		gameobjects[i].setPosition(parent->position + worldPosition3);
+	//		//glm::vec3 changePos(0.0f, 0.0f, 0.0f);
+	//		//glm::mat4 temp;
+	//		//glm::I
+	//		//changePos.x = (gameobjects[i].localPosition.z *(glm::radians(gameobjects[i].parent->rotation.x)) + gameobjects[i].localPosition.y * sin(glm::radians(camera.Pitch)))* sin(glm::radians(camera.Yaw + 90.0f));
+	//		//changePos.y = (0.8f * sin(glm::radians(camera.Pitch)) - 0.06f * cos(glm::radians(camera.Pitch)));
+	//		//changePos.z = -(0.8f * cos(glm::radians(camera.Pitch)) + 0.06f * sin(glm::radians(camera.Pitch)))* cos(glm::radians(camera.Yaw + 90.0f));
+
+	//	}
+	//}
+	//Object * parent = &camera;
+	Object * parent = &gameobjects[0];
+	gameobjects[1].localPosition = glm::vec3(px, py, pz);
+	gameobjects[1].localRotation = glm::vec3(rx, ry, rz);
+	//gameobjects[1].setRotation(parent->rotation + gameobjects[1].localRotation);
+	//glm::mat4 parentRotation = glm::eulerAngleXYZ(parent->rotation.x, parent->rotation.y, parent->rotation.z);
+	//glm::mat4 childRotation = glm::eulerAngleXYZ(gameobjects[1].localRotation.x, gameobjects[1].localRotation.y, gameobjects[1].localRotation.z);
+	//glm::mat4 trans = glm::translate(glm::mat4(), parent->position);
+	//rotationSum = parentRotation   * childRotation;
+	//double x = atan2(rotationSum[3][2], rotationSum[3][3]);
+	//double y = atan2(-rotationSum[3][1], sqrt(rotationSum[3][2] * rotationSum[3][2] + rotationSum[3][3] * rotationSum[3][3]));
+	//double z = atan2(rotationSum[2][1], rotationSum[1][1]);
+	//gameobjects[1].setRotation(glm::vec3(x, y, z));
+
+
+	glm::mat4 parentRotation = glm::eulerAngleXYZ(parent->rotation.x, parent->rotation.y, parent->rotation.z);
+
+	glm::mat4 childRotation = glm::eulerAngleXYZ(gameobjects[1].localRotation.x, gameobjects[1].localRotation.y, gameobjects[1].localRotation.z);
+	glm::mat4 parentTrans = glm::translate(glm::mat4(), parent->position);
+	glm::mat4 childTrans = glm::translate(glm::mat4(), gameobjects[1].localPosition);
+	glm::mat4 scl = glm::scale(glm::mat4(), glm::vec3(0.005f, 0.005f, 0.005f));
+
+	TRSum = parentTrans * parentRotation * childTrans * childRotation * scl;
+	//glm::vec4 localPosition4(gameobjects[1].localPosition, 1);
+	//glm::mat4 parentRotationMat4 = glm::rotate(glm::mat4(), parent->rotation.y, glm::vec3(0, 1, 0));
+	//parentRotationMat4 = glm::rotate(parentRotationMat4, parent->rotation.x, glm::vec3(1, 0, 0));
+	//glm::vec4 worldPosition4 = parentRotationMat4 * localPosition4;
+	//glm::vec3 worldPosition3(worldPosition4.x, worldPosition4.y, worldPosition4.z);
+	//gameobjects[1].setPosition(parent->position + worldPosition3);
+	//cout << "gameobjects[1].rotation" << gameobjects[1].rotation.x << ", " << gameobjects[1].rotation.y << ", " << gameobjects[1].rotation.z << endl;
+	//float radius = 0.3f;
+	//float camX = cos(glfwGetTime()) * radius;
+	//float camZ = cos(glfwGetTime()) * radius;
+	//gameobjects[0].setRotation(glm::vec3(camX,0, camZ));
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -300,7 +402,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	float sensitivity = 0.05f; // change this value to your liking
 	xoffset *= sensitivity;
 	yoffset *= sensitivity;
-
 	camera.Yaw += xoffset;
 	camera.Pitch += yoffset;
 
@@ -315,6 +416,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	front.y = sin(glm::radians(camera.Pitch));
 	front.z = sin(glm::radians(camera.Yaw)) * cos(glm::radians(camera.Pitch));
 	camera.Front = glm::normalize(front);
+	camera.updateRotation();
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
@@ -338,8 +440,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 		isPerspective = !isPerspective;
 	if (key == GLFW_KEY_C && action == GLFW_PRESS) {
-		gameobjects[0].position = camera.Position;
+		gameobjects[0].position = camera.position;
 	}
+
 		//creatGameobject();
 }
 void creatGameobject() {
@@ -349,11 +452,11 @@ void creatGameobject() {
 	string path4 = "resources/model/M4CQB/M4CQB.FBX";
 	string path5 = "resources/model/dao/dao.fbx";
 
-	Gameobject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
-	dragon.isActive = false;
-	gameobjects.push_back(dragon);
+	//Gameobject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
+	//dragon.isActive = false;
+	//gameobjects.push_back(dragon);
 
-	Gameobject man(path2, glm::vec3(-5.0f, 3.8f, 7.4f), glm::vec3(0.1f, 0.1f, 0.1f));
+	Gameobject man(path2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
 	//man.isActive = false;
 	gameobjects.push_back(man);
 
@@ -361,9 +464,11 @@ void creatGameobject() {
 	//scene.isActive = false;
 	//gameobjects.push_back(scene);
 
-	Gameobject M4(path4, glm::vec3(-5.0f, 5.5f, 7.4f), glm::vec3(0.005f, 0.005f, 0.005f), glm::vec3(PI, PI, 0));
+	Gameobject M4(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.005f, 0.005f, 0.005f), glm::vec3(0, 0, 0));
 	M4.isActive = false;
 	gameobjects.push_back(M4);
+	gameobjects[1].localPosition = glm::vec3(0, 0, -1);
+	//gameobjects[1].localRotation = glm::vec3(PI, PI/2, 0);
 
 	Gameobject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
 	dao.isActive = false;

@@ -1,0 +1,11 @@
+﻿  main.cpp
+c:\users\kelvin\desktop\opengl\project1\main.cpp(127): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+c:\users\kelvin\desktop\opengl\project1\main.cpp(290): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\kelvin\desktop\opengl\project1\main.cpp(291): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\kelvin\desktop\opengl\project1\main.cpp(295): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+c:\users\kelvin\desktop\opengl\project1\main.cpp(296): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+c:\users\kelvin\desktop\opengl\project1\main.cpp(297): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\kelvin\desktop\opengl\project1\main.cpp(298): warning C4244: “=”: 从“double”转换到“float”，可能丢失数据
+c:\users\kelvin\desktop\opengl\project1\main.cpp(324): warning C4244: “-=”: 从“double”转换到“float”，可能丢失数据
+  Project1.vcxproj -> C:\Users\Kelvin\Desktop\OpenGL\x64\Debug\Project1.exe
+  Project1.vcxproj -> C:\Users\Kelvin\Desktop\OpenGL\x64\Debug\Project1.pdb (Partial PDB)

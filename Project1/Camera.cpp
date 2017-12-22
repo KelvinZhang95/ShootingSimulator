@@ -1,7 +1,9 @@
 #include "Camera.h"
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+#define PI 3.1415926f
+Camera::Camera(glm::vec3 position_, glm::vec3 up, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 {
-	Position = position;
+	needRender = false;
+	position = position_;
 	WorldUp = up;
 	Yaw = yaw;
 	Pitch = pitch;
@@ -9,7 +11,8 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) : Front
 }
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 {
-	Position = glm::vec3(posX, posY, posZ);
+	needRender = false;
+	position = glm::vec3(posX, posY, posZ);
 	WorldUp = glm::vec3(upX, upY, upZ);
 	Yaw = yaw;
 	Pitch = pitch;
@@ -20,7 +23,14 @@ Camera::~Camera()
 }
 glm::mat4 Camera::GetViewMatrix()
 {
-	return glm::lookAt(Position, Position + Front, Up);
+	return glm::lookAt(position, position + Front, Up);
+}
+void Camera::updateRotation()
+{
+	rotation.x =  Pitch * PI / 180;
+	//rotation.y = (-180 - Yaw)  * PI / 180 + PI / 2;
+	rotation.y = -Yaw * PI / 180;
+	rotation.z = 0;
 }
 void Camera::updateCameraVectors() {
 	// Calculate the new Front vector

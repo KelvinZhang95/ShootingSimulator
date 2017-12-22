@@ -5,8 +5,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include "Collider.h"
+#include "Gameobject.h"
 
-const float YAW = -90.0f;
+const float YAW = 0.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
 const float SENSITIVTY = 0.1f;
@@ -20,7 +21,7 @@ enum Camera_Movement {
 };
 
 
-class Camera
+class Camera :public Object
 {
 
 public:
@@ -29,7 +30,6 @@ public:
 	~Camera();
 	glm::mat4 GetViewMatrix();
 public:
-	glm::vec3 Position;
 	glm::vec3 Front;
 	glm::vec3 Up;
 	glm::vec3 Right;
@@ -41,6 +41,7 @@ public:
 	float MovementSpeed;
 	float MouseSensitivity;
 	float Zoom;
+	void updateRotation();
 private:
 	// Calculates the front vector from the Camera's (updated) Eular Angles
 	void updateCameraVectors();
