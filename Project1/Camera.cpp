@@ -27,10 +27,9 @@ glm::mat4 Camera::GetViewMatrix()
 }
 void Camera::updateRotation()
 {
-	rotation.x =  Pitch * PI / 180;
-	//rotation.y = (-180 - Yaw)  * PI / 180 + PI / 2;
+	rotation.x = 0;
 	rotation.y = -Yaw * PI / 180;
-	rotation.z = 0;
+	rotation.z = Pitch * PI / 180;
 }
 void Camera::updateCameraVectors() {
 	// Calculate the new Front vector

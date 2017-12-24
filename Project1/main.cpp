@@ -26,6 +26,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void creatGameobject();
 void processInput(GLFWwindow *window);
 void updateLogic();
+void updateKinematics();
+void updateChildPosRot();
 //void setTexture(unsigned int *texture, string  filepath, bool ispng);
 
 // settings
@@ -44,7 +46,7 @@ float lastY = SCR_HEIGHT / 2.0;
 
 glm::vec3 lightPos(8.0f, 6.0f, 9.0f);
 Camera camera(glm::vec3(0.0f, 0.0f, 11.0f));
-vector<Gameobject> gameobjects;
+vector<GameObject> gameobjects;
 
 double px, py, pz, rx, ry, rz;
 
@@ -123,11 +125,12 @@ int main()
 
 	//gameobjects.push_back(camera);
 	creatGameobject();
-	
+	gameobjects[1].setParent(camera);
 	//glm::vec3 lightPos(1.0f, 6.0f, 1.0f);
 
 	// load textures (we now use a utility function to keep the code more organized)
 	// render loop
+
 	while (!glfwWindowShouldClose(window))
 	{
 		float currentFrame = glfwGetTime();
@@ -161,11 +164,11 @@ int main()
 
 		glm::mat4 model;
 		for (int i = 0; i < gameobjects.size(); i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, gameobjects[i].position);
-			model = glm::scale(model, gameobjects[i].scale);
-			//model = glm::rotate(model, 0.0f, glm::vec3(1.0f, 1.0f, 0.0f));
-			simpleDepthShader.setMat4("model", model);
+			model = glm::mat4();
+			glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
+			glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
+			glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
+			model = trans * rot * sca;
 			gameobjects[i].model.Draw(simpleDepthShader, false);
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -203,45 +206,19 @@ int main()
 
 		glm::mat4 view;
 		view = glm::lookAt(camera.position, camera.position + camera.Front, camera.Up);
-		//cout << "camera.position : " << camera.position.x << "," <<camera.position.y << "," << camera.position.z << endl;
 
 		lightingShader.setMat4("view", view);
 		lightingShader.setMat4("projection", projection);
 
-
 		for (int i = 0; i < gameobjects.size(); i++) {
 			model = glm::mat4();
-			//model = glm::eulerAngleZ(gameobjects[i].rotation.z)*glm::eulerAngleY(gameobjects[i].rotation.y)*glm::eulerAngleX(gameobjects[i].rotation.x);
-			//glm::mat4 rotation = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
 			glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
-			//model = glm::translate(model, gameobjects[i].position);
-			glm::mat4 rot = glm::mat4();
-			rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
-			/*if (i == 100) {
-				model = model * TRSum;
-			}
-			else {
-
-				model = glm::rotate(model, gameobjects[i].rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-				model = glm::rotate(model, gameobjects[i].rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-				model = glm::rotate(model, gameobjects[i].rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-			}*/
-			
+			glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
 			glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
-
-			//model = glm::scale(glm::mat4(), gameobjects[i].scale);
-			//model = model * rotation;
-			if (i == 1) {
-				model = TRSum * model;
-			}
-			else {
-				model = trans * rot * sca;
-
-			}
+			model = trans * rot * sca;
 			lightingShader.setMat4("model", model);
 			gameobjects[i].model.Draw(lightingShader,true);
 		}
-
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
@@ -302,80 +279,32 @@ void processInput(GLFWwindow *window)
 		camera.position = tryPosition;
 	}
 	
-	cout << "camera.rotation" << camera.rotation.x << ", " << camera.rotation.y << ", " << camera.rotation.z <<endl;
+	cout << "camera.rotation" << camera.rotation.x / PI * 180 << ", " << camera.rotation.y / PI * 180 << ", " << camera.rotation.z / PI * 180 <<endl;
 }
+void updateChildPosRot()
+{
+	camera.updatePosRotFromParent();
+	for (int i = 0; i < gameobjects.size(); i++) {
+		gameobjects[i].updatePosRotFromParent();
+	}
+}
+void updateKinematics()
+{
+	for (int i = 0; i < gameobjects.size(); i++) {
+		if (gameobjects[i].parent == NULL) {//没有父亲的时候
 
+		}
+	}
+}
 //update logic 
 void updateLogic() {
-	ifstream in;
-	in.open("in.txt");
-	if (in.is_open())
-	{
-		in >> px >> py >> pz >> rx >> ry >> rz;
-	}
-	else {
-		std::cout << "error" << "\n";
-	}
-	in.close();
-	std::cout << pz << py << pz << rx << ry << rz << "\n";
-
-
-	//for (int i = 0; i < gameobjects.size(); i++) {
-	//	if (gameobjects[i].parent != NULL) {
-	//		Object * parent = gameobjects[i].parent;
-
-	//		gameobjects[i].setRotation(parent->rotation + gameobjects[i].localRotation);
-
-	//		glm::vec4 localPosition4(gameobjects[i].localPosition, 1);
-	//		glm::mat4 parentRotationMat4 = glm::rotate(glm::mat4(), parent->rotation.y, glm::vec3(0, 1, 0));
-	//		parentRotationMat4 = glm::rotate(parentRotationMat4, parent->rotation.x, glm::vec3(1, 0, 0));
-	//		glm::vec4 worldPosition4 = parentRotationMat4 * localPosition4;
-	//		glm::vec3 worldPosition3(worldPosition4.x, worldPosition4.y, worldPosition4.z);
-	//		gameobjects[i].setPosition(parent->position + worldPosition3);
-	//		//glm::vec3 changePos(0.0f, 0.0f, 0.0f);
-	//		//glm::mat4 temp;
-	//		//glm::I
-	//		//changePos.x = (gameobjects[i].localPosition.z *(glm::radians(gameobjects[i].parent->rotation.x)) + gameobjects[i].localPosition.y * sin(glm::radians(camera.Pitch)))* sin(glm::radians(camera.Yaw + 90.0f));
-	//		//changePos.y = (0.8f * sin(glm::radians(camera.Pitch)) - 0.06f * cos(glm::radians(camera.Pitch)));
-	//		//changePos.z = -(0.8f * cos(glm::radians(camera.Pitch)) + 0.06f * sin(glm::radians(camera.Pitch)))* cos(glm::radians(camera.Yaw + 90.0f));
-
-	//	}
-	//}
-	//Object * parent = &camera;
-	Object * parent = &gameobjects[0];
-	gameobjects[1].localPosition = glm::vec3(px, py, pz);
-	gameobjects[1].localRotation = glm::vec3(rx, ry, rz);
-	//gameobjects[1].setRotation(parent->rotation + gameobjects[1].localRotation);
-	//glm::mat4 parentRotation = glm::eulerAngleXYZ(parent->rotation.x, parent->rotation.y, parent->rotation.z);
-	//glm::mat4 childRotation = glm::eulerAngleXYZ(gameobjects[1].localRotation.x, gameobjects[1].localRotation.y, gameobjects[1].localRotation.z);
-	//glm::mat4 trans = glm::translate(glm::mat4(), parent->position);
-	//rotationSum = parentRotation   * childRotation;
-	//double x = atan2(rotationSum[3][2], rotationSum[3][3]);
-	//double y = atan2(-rotationSum[3][1], sqrt(rotationSum[3][2] * rotationSum[3][2] + rotationSum[3][3] * rotationSum[3][3]));
-	//double z = atan2(rotationSum[2][1], rotationSum[1][1]);
-	//gameobjects[1].setRotation(glm::vec3(x, y, z));
-
-
-	glm::mat4 parentRotation = glm::eulerAngleXYZ(parent->rotation.x, parent->rotation.y, parent->rotation.z);
-
-	glm::mat4 childRotation = glm::eulerAngleXYZ(gameobjects[1].localRotation.x, gameobjects[1].localRotation.y, gameobjects[1].localRotation.z);
-	glm::mat4 parentTrans = glm::translate(glm::mat4(), parent->position);
-	glm::mat4 childTrans = glm::translate(glm::mat4(), gameobjects[1].localPosition);
-	glm::mat4 scl = glm::scale(glm::mat4(), glm::vec3(0.005f, 0.005f, 0.005f));
-
-	TRSum = parentTrans * parentRotation * childTrans * childRotation * scl;
-	//glm::vec4 localPosition4(gameobjects[1].localPosition, 1);
-	//glm::mat4 parentRotationMat4 = glm::rotate(glm::mat4(), parent->rotation.y, glm::vec3(0, 1, 0));
-	//parentRotationMat4 = glm::rotate(parentRotationMat4, parent->rotation.x, glm::vec3(1, 0, 0));
-	//glm::vec4 worldPosition4 = parentRotationMat4 * localPosition4;
-	//glm::vec3 worldPosition3(worldPosition4.x, worldPosition4.y, worldPosition4.z);
-	//gameobjects[1].setPosition(parent->position + worldPosition3);
-	//cout << "gameobjects[1].rotation" << gameobjects[1].rotation.x << ", " << gameobjects[1].rotation.y << ", " << gameobjects[1].rotation.z << endl;
-	//float radius = 0.3f;
-	//float camX = cos(glfwGetTime()) * radius;
-	//float camZ = cos(glfwGetTime()) * radius;
-	//gameobjects[0].setRotation(glm::vec3(camX,0, camZ));
+	updateKinematics();
+	updateChildPosRot();
 }
+
+
+
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -456,7 +385,7 @@ void creatGameobject() {
 	//dragon.isActive = false;
 	//gameobjects.push_back(dragon);
 
-	Gameobject man(path2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
+	GameObject man(path2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
 	//man.isActive = false;
 	gameobjects.push_back(man);
 
@@ -464,13 +393,17 @@ void creatGameobject() {
 	//scene.isActive = false;
 	//gameobjects.push_back(scene);
 
-	Gameobject M4(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.005f, 0.005f, 0.005f), glm::vec3(0, 0, 0));
+	GameObject M4(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.005f, 0.005f, 0.005f), glm::vec3(0, 0, 0));
 	M4.isActive = false;
 	gameobjects.push_back(M4);
-	gameobjects[1].localPosition = glm::vec3(0, 0, -1);
-	//gameobjects[1].localRotation = glm::vec3(PI, PI/2, 0);
+	gameobjects[1].localPosition = glm::vec3(1, 0, 0);
+	gameobjects[1].localRotation = glm::vec3(-PI / 2, 0, -PI / 2);
 
-	Gameobject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
-	dao.isActive = false;
-	gameobjects.push_back(dao);
+	//Gameobject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+	//dao.isActive = false;
+	//gameobjects.push_back(dao);
+
+	GameObject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
+	dragon.isActive = false;
+	gameobjects.push_back(dragon);
 }
