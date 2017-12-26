@@ -1,4 +1,6 @@
 *.db
 x64/
+debug/
+release/
 .vs/Project1/v14/.suo
 *.opendb

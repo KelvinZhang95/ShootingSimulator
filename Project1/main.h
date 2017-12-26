@@ -8,6 +8,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm\gtx\euler_angles.hpp>
 
+//#include "imgui/imgui.h"
+//#include "imgui/imgui_impl_glfw_gl3.h"
+//#include "imgui_helper.h"
+#include "background.h"
+
 #include "shader.h"
 #include "Camera.h"
 #include "Model.h"
@@ -37,8 +42,8 @@ void updateChildPosRot();
 //void setTexture(unsigned int *texture, string  filepath, bool ispng);
 
 // settings
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 900;
+extern unsigned int SCR_WIDTH = 1200;
+extern unsigned int SCR_HEIGHT = 800;
 
 float speed = 2.0f;
 bool isSpeed = false;
@@ -56,6 +61,5 @@ Camera camera(glm::vec3(0.0f, 0.0f, 11.0f));
 vector<GameObject> gameobjects;
 vector<GameObject> prefabs;
 
-double px, py, pz, rx, ry, rz;
-
 bool isPerspective = true;
+//ImguiHelper imgui_helper;

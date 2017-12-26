@@ -1,4 +1,5 @@
 #include "main.h"
+
 int main()
 {
 	// glfw: initialize and configure
@@ -75,7 +76,9 @@ int main()
 	gameobjects[1].setParent(camera);
 	//glm::vec3 lightPos(1.0f, 6.0f, 1.0f);
 
-	// load textures (we now use a utility function to keep the code more organized)
+	BackGround background;
+	//imgui_helper.Initailize(window, SCR_WIDTH, SCR_HEIGHT);
+
 	// render loop
 
 	while (!glfwWindowShouldClose(window))
@@ -85,93 +88,99 @@ int main()
 		lastFrame = currentFrame;
 		//cout << "fps : " << 1 / deltaTime << endl;
 
+
+		//ImGui_ImplGlfwGL3_NewFrame();
+
 		// input
 		processInput(window);
 
 		updateLogic(window);
+
 		// 1. Render depth of scene to texture (from ligth's perspective)
 		// - Get light projection/view matrix.
 		//glm::vec3 lightInvDir = glm::vec3(0.5f, 2, 2);
 
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
-		float near_plane = 0.1f, far_plane = 30.5f;
-		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-		lightSpaceMatrix = lightProjection * lightView;
-		// - now render scene from light's point of view
-		simpleDepthShader.use();
-		simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-
 		glm::mat4 model;
-		for (int i = 0; i < gameobjects.size(); i++) {
-			model = glm::mat4();
-			glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
-			glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
-			glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
-			model = trans * rot * sca;
-			gameobjects[i].model.Draw(simpleDepthShader, false);
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		float near_plane = 0.1f, far_plane = 30.5f;
+		{
 
-		// render as normal
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+			lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+			lightSpaceMatrix = lightProjection * lightView;
+			// - now render scene from light's point of view
+			simpleDepthShader.use();
+			simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-		// be sure to activate shader when setting uniforms/drawing objects
-		
-		lightingShader.use();
+			glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+			glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+			glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+			glClear(GL_DEPTH_BUFFER_BIT);
 
-		//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		//glm::mat4 view;
-		//view = glm::lookAt(camera.position, camera.position + camera.Front, camera.Up);
-		//lightingShader.setMat4("view", view);
-		//lightingShader.setMat4("projection", projection);
 
-		lightingShader.setVec3("viewPos", camera.position);
-		lightingShader.setVec3("lightPos", lightPos);
-
-		lightingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		glActiveTexture(GL_TEXTURE0);
-
-		glm::mat4 projection;
-		if (isPerspective) {
-			projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
-		}
-		else {
-			projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
+			for (int i = 0; i < gameobjects.size(); i++) {
+				model = glm::mat4();
+				glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
+				glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
+				glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
+				model = trans * rot * sca;
+				gameobjects[i].model.Draw(simpleDepthShader, false);
+			}
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		glm::mat4 view;
-		view = glm::lookAt(camera.position, camera.position + camera.Front, camera.Up);
+		//imgui_helper.BeginRenderFramebuffer();
 
-		lightingShader.setMat4("view", view);
-		lightingShader.setMat4("projection", projection);
+		{		// render as normal
+			glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (int i = 0; i < gameobjects.size(); i++) {
-			model = glm::mat4();
-			glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
-			glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
-			glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
-			model = trans * rot * sca;
-			lightingShader.setMat4("model", model);
-			gameobjects[i].model.Draw(lightingShader,true);
+			// be sure to activate shader when setting uniforms/drawing objects
+			lightingShader.use();
+			lightingShader.setVec3("viewPos", camera.position);
+			lightingShader.setVec3("lightPos", lightPos);
+
+			lightingShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, depthMap);
+			glActiveTexture(GL_TEXTURE0);
+
+			glm::mat4 projection;
+			if (isPerspective) {
+				projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
+			}
+			else {
+				projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
+			}
+
+			glm::mat4 view;
+			view = glm::lookAt(camera.position, camera.position + camera.Front, camera.Up);
+
+			lightingShader.setMat4("view", view);
+			lightingShader.setMat4("projection", projection);
+
+			for (int i = 0; i < gameobjects.size(); i++) {
+				model = glm::mat4();
+				glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
+				glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
+				glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
+				model = trans * rot * sca;
+				lightingShader.setMat4("model", model);
+				gameobjects[i].model.Draw(lightingShader, true);
+			}
+			background.render(camera, projection);
+
 		}
+		//imgui_helper.EndRenderFramebuffer();
 
+		//imgui_helper.Render();
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-
+	background.clean();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	glfwTerminate();
 	return 0;
@@ -231,7 +240,7 @@ void processInput(GLFWwindow *window)
 		camera.position = tryPosition;
 	}
 	
-	cout << "camera.front" << camera.Front.x << ", " << camera.Front.y<< ", " << camera.Front.z <<endl;
+	//cout << "camera.front" << camera.Front.x << ", " << camera.Front.y<< ", " << camera.Front.z <<endl;
 }
 void updateChildPosRot()
 {
@@ -271,6 +280,14 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
+//	// update framebuffer
+//	int display_w, display_h;
+//	glfwGetFramebufferSize(window, &display_w, &display_h);
+//	SCR_WIDTH = display_w;
+//	SCR_HEIGHT = display_h;
+//
+//	imgui_helper.Resize(display_w, display_h);
+//	imgui_helper.RecreateFramebuffer();
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -304,7 +321,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	front.y = sin(glm::radians(camera.Pitch));
 	front.z = sin(glm::radians(camera.Yaw)) * cos(glm::radians(camera.Pitch));
 	camera.Front = glm::normalize(front);
-
 	camera.updateRotation();
 }
 
@@ -356,25 +372,26 @@ void creatGameobject() {
 	//string path3 = "resources/model/scene/scene.obj";
 	string path4 = "resources/model/M4CQB/M4CQB.FBX";
 	string path5 = "resources/model/dao/dao.fbx";
-
+	string path6 = "resources/model/762/762.obj";
 
 	GameObject man(path2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
 	GameObject M4(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.006f, 0.006f, 0.006f), glm::vec3(0, 0, 0));
 	GameObject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
 	GameObject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
+	GameObject bullet762(path6, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0001f, 0.0001f, 0.0001f));
 
 	prefabs.push_back(man);
 	prefabs.push_back(M4);
 	prefabs.push_back(dao);
 	prefabs.push_back(dragon);
-
+	prefabs.push_back(bullet762);
 
 	gameobjects.push_back(prefabs[0]);
 
 	gameobjects.push_back(prefabs[1]);
 	gameobjects[1].localPosition = glm::vec3(1.0, -0.28, 0.1);
 	gameobjects[1].localRotation = glm::vec3(270 / 180 * PI, 0, 280 / 180 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[0], &gameobjects,&camera);
+	MonoBehaviour *shoot = new Shoot(&prefabs[4], &gameobjects,&camera);
 	gameobjects[1].scripts.push_back(shoot);
 
 	gameobjects.push_back(prefabs[2]);
