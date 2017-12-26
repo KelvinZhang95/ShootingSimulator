@@ -1,57 +1,4 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include "stb_image.h"
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm\gtx\euler_angles.hpp>
-
-#include "shader.h"
-#include "Camera.h"
-#include "Model.h"
-#include "GameObject.h"
-
-#include <iostream>
-#include <string>
-#include <math.h>
-#include <fstream>
-using namespace std;
-#define PI 3.1415926f
-glm::mat4 TRSum;
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void creatGameobject();
-void processInput(GLFWwindow *window);
-void updateLogic();
-void updateScript();
-void updateKinematics();
-void updateChildPosRot();
-//void setTexture(unsigned int *texture, string  filepath, bool ispng);
-
-// settings
-const unsigned int SCR_WIDTH = 1000;
-const unsigned int SCR_HEIGHT = 800;
-
-float speed = 2.0f;
-bool isSpeed = false;
-
-float deltaTime = 0.0f; // 当前帧与上一帧的时间差
-float lastFrame = 0.0f; // 上一帧的时间
-
-bool firstMouse = true;
-float lastX = SCR_WIDTH / 2.0;
-float lastY = SCR_HEIGHT / 2.0;
-
-glm::vec3 lightPos(8.0f, 6.0f, 9.0f);
-Camera camera(glm::vec3(0.0f, 0.0f, 11.0f));
-vector<GameObject> gameobjects;
-
-double px, py, pz, rx, ry, rz;
-
-bool isPerspective  = true;
+#include "main.h"
 int main()
 {
 	// glfw: initialize and configure
@@ -141,7 +88,7 @@ int main()
 		// input
 		processInput(window);
 
-		updateLogic();
+		updateLogic(window);
 		// 1. Render depth of scene to texture (from ligth's perspective)
 		// - Get light projection/view matrix.
 		//glm::vec3 lightInvDir = glm::vec3(0.5f, 2, 2);
@@ -198,10 +145,10 @@ int main()
 
 		glm::mat4 projection;
 		if (isPerspective) {
-			projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+			projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 1000.0f);
 		}
 		else {
-			projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+			projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 1000.0f);
 		}
 
 		glm::mat4 view;
@@ -256,17 +203,22 @@ void processInput(GLFWwindow *window)
 		hasMoved = true;
 		tryPosition = camera.position + glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraSpeed;
 	}
+	//if (glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS) {
+	//	hasMoved = true;
+	//	tryPosition = camera.position + glm::normalize(glm::cross(camera.Front, camera.Up)) * cameraSpeed;
+	//}
+	
 
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
-		gameobjects[0].position = gameobjects[0].position + glm::vec3(0.1, 0, 0);
-	}
-	if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
-		gameobjects[0].setRotation(gameobjects[0].rotation + glm::vec3(1 * PI / 180, 0, 0));
-	}
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
-		gameobjects[0].setRotation(gameobjects[0].rotation + glm::vec3(0, 1 * PI / 180, 0));
+	//if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+	//	gameobjects[0].position = gameobjects[0].position + glm::vec3(0.1, 0, 0);
+	//}
+	//if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS) {
+	//	gameobjects[0].setRotation(gameobjects[0].rotation + glm::vec3(1 * PI / 180, 0, 0));
+	//}
+	//if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) {
+	//	gameobjects[0].setRotation(gameobjects[0].rotation + glm::vec3(0, 1 * PI / 180, 0));
 
-	}
+	//}
 	if (hasMoved) {
 		for (int i = 0; i < gameobjects.size(); i++) {
 			if (gameobjects[i].isActive) {
@@ -279,7 +231,7 @@ void processInput(GLFWwindow *window)
 		camera.position = tryPosition;
 	}
 	
-	cout << "camera.rotation" << camera.rotation.x / PI * 180 << ", " << camera.rotation.y / PI * 180 << ", " << camera.rotation.z / PI * 180 <<endl;
+	cout << "camera.front" << camera.Front.x << ", " << camera.Front.y<< ", " << camera.Front.z <<endl;
 }
 void updateChildPosRot()
 {
@@ -293,17 +245,18 @@ void updateKinematics()
 
 }
 //update logic 
-void updateLogic() {
-	updateScript();
+void updateLogic(GLFWwindow *window) {
+	adjust();
+	updateScript(window);
 	updateKinematics();
 	updateChildPosRot();
 }
 
-void updateScript()
+void updateScript(GLFWwindow *window)
 {
 	for (int i = 0; i < gameobjects.size(); i++) {
 		for (int j = 0; j < gameobjects[i].scripts.size(); j++) {
-			gameobjects[i].scripts[j]->update(&gameobjects[i]);
+			gameobjects[i].scripts[j]->update(window, &gameobjects[i]);
 		}
 	}
 }
@@ -351,6 +304,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	front.y = sin(glm::radians(camera.Pitch));
 	front.z = sin(glm::radians(camera.Yaw)) * cos(glm::radians(camera.Pitch));
 	camera.Front = glm::normalize(front);
+
 	camera.updateRotation();
 }
 
@@ -378,8 +332,21 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	//	gameobjects[0].position = camera.position;
 	//}
 	if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-		MonoBehaviour *fly = new Flying(glm::vec3(1, 0, 0), 0.1);
+		MonoBehaviour *fly = new Flying(glm::vec3(-1, 0, 0), 0.1);
 		gameobjects[3].scripts.push_back(fly);
+	}
+	if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+		adjust();
+	}
+	if (key == GLFW_KEY_GRAVE_ACCENT && action == GLFW_PRESS) {
+		if (cursorMode) {
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			cursorMode = false;
+		}
+		else {
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			cursorMode = true;
+		}
 	}
 		//creatGameobject();
 }
@@ -390,30 +357,42 @@ void creatGameobject() {
 	string path4 = "resources/model/M4CQB/M4CQB.FBX";
 	string path5 = "resources/model/dao/dao.fbx";
 
-	//Gameobject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
-	//dragon.isActive = false;
-	//gameobjects.push_back(dragon);
 
 	GameObject man(path2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
-	//man.isActive = false;
-	gameobjects.push_back(man);
-
-	//Gameobject scene(path3, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(3, 3, 3));
-	//scene.isActive = false;
-	//gameobjects.push_back(scene);
-
-	GameObject M4(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.005f, 0.005f, 0.005f), glm::vec3(0, 0, 0));
-	M4.isActive = false;
-	gameobjects.push_back(M4);
-	gameobjects[1].localPosition = glm::vec3(1, 0, 0);
-	gameobjects[1].localRotation = glm::vec3(-PI / 2, 0, -PI / 2);
-
+	GameObject M4(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.006f, 0.006f, 0.006f), glm::vec3(0, 0, 0));
 	GameObject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
-	dao.isActive = false;
-	gameobjects.push_back(dao);
-
 	GameObject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
-	dragon.isActive = false;
 
-	gameobjects.push_back(dragon);
+	prefabs.push_back(man);
+	prefabs.push_back(M4);
+	prefabs.push_back(dao);
+	prefabs.push_back(dragon);
+
+
+	gameobjects.push_back(prefabs[0]);
+
+	gameobjects.push_back(prefabs[1]);
+	gameobjects[1].localPosition = glm::vec3(1.0, -0.28, 0.1);
+	gameobjects[1].localRotation = glm::vec3(270 / 180 * PI, 0, 280 / 180 * PI);
+	MonoBehaviour *shoot = new Shoot(&prefabs[0], &gameobjects,&camera);
+	gameobjects[1].scripts.push_back(shoot);
+
+	gameobjects.push_back(prefabs[2]);
+	gameobjects[2].isActive = false;//关闭碰撞检测
+
+	gameobjects.push_back(prefabs[3]);
+	gameobjects[3].isActive = false;//关闭碰撞检测
+
+}
+void adjust() {
+	float x, y, z, rx, ry, rz;
+	ifstream in;
+	in.open("in.txt");
+	in >> x >> y >> z >> rx >> ry >> rz;
+	rx = rx / 180 * PI;
+	ry = ry / 180 * PI;
+	rz = rz / 180 * PI;
+	gameobjects[1].localPosition = glm::vec3(x,y,z);
+	gameobjects[1].localRotation = glm::vec3(rx, ry, rz);
+	in.close();
 }

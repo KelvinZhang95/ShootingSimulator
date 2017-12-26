@@ -2,6 +2,7 @@
 #define MONOBEHAVIOUR_H
 //#include "Object.h"
 //#include "GameObject.h"
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,7 +15,7 @@ public:
 	MonoBehaviour();
 	~MonoBehaviour();
 public:
-	virtual void update(GameObject *obj) {
+	virtual void update(GLFWwindow* window, GameObject *obj) {
 		//if (obj->parent == NULL) {
 
 		//}

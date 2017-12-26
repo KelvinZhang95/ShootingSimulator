@@ -30,6 +30,7 @@ void Camera::updateRotation()
 	rotation.x = 0;
 	rotation.y = -Yaw * PI / 180;
 	rotation.z = Pitch * PI / 180;
+	//updateCameraVectors();
 }
 void Camera::updateCameraVectors() {
 	// Calculate the new Front vector

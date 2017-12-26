@@ -9,7 +9,6 @@
 
 #include "Object.h"
 #include "Model.h"
-#include "Flying.h"
 using namespace std;
 
 //class MonoBehaviour;
