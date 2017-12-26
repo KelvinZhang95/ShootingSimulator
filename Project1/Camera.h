@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include "Collider.h"
-#include "Gameobject.h"
+#include "GameObject.h"
 
 const float YAW = 0.0f;
 const float PITCH = 0.0f;

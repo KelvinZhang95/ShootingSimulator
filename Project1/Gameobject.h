@@ -6,30 +6,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm\gtx\euler_angles.hpp>
 
+
+#include "Object.h"
 #include "Model.h"
-
+#include "Flying.h"
 using namespace std;
-class Object
-{
-protected:
-	Object(glm::vec3 position_ = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 rotation_ = glm::vec3(0.0f, 0.0f, 0.0f), Object *child_ = NULL, Object *parent_ = NULL);
-	~Object();
-public:
-	bool needRender;
-	glm::vec3 position;
-	glm::vec3 rotation;
-	void setPosition(glm::vec3 &newPosition);
-	void setRotation(glm::vec3 &newRotation);
-public:
-	Object *child;
-	Object *parent;
-	glm::vec3 localRotation;
-	glm::vec3 localPosition;
-	glm::mat4 getTR();
-	void updatePosRotFromParent();
-	void setParent(Object &par);
-};
 
+//class MonoBehaviour;
+class Object;
 class GameObject: public Object
 {
 public:
@@ -42,14 +26,7 @@ public:
 	glm::vec3 scale;
 	bool isActive;
 	string modelPath;
-};
 
-class FlyingGameObject :GameObject 
-{
-public:
-	FlyingGameObject(string modelPath_, float speed_ = 0, glm::vec3 velocity_ = glm::vec3(1, 0, 0));
-	float speed;
-	glm::vec3 velocity;
 };
 
 #endif

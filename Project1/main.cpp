@@ -10,7 +10,7 @@
 #include "shader.h"
 #include "Camera.h"
 #include "Model.h"
-#include "Gameobject.h"
+#include "GameObject.h"
 
 #include <iostream>
 #include <string>
@@ -26,6 +26,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void creatGameobject();
 void processInput(GLFWwindow *window);
 void updateLogic();
+void updateScript();
 void updateKinematics();
 void updateChildPosRot();
 //void setTexture(unsigned int *texture, string  filepath, bool ispng);
@@ -53,7 +54,6 @@ double px, py, pz, rx, ry, rz;
 bool isPerspective  = true;
 int main()
 {
-	
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -290,16 +290,22 @@ void updateChildPosRot()
 }
 void updateKinematics()
 {
-	for (int i = 0; i < gameobjects.size(); i++) {
-		if (gameobjects[i].parent == NULL) {//没有父亲的时候
 
-		}
-	}
 }
 //update logic 
 void updateLogic() {
+	updateScript();
 	updateKinematics();
 	updateChildPosRot();
+}
+
+void updateScript()
+{
+	for (int i = 0; i < gameobjects.size(); i++) {
+		for (int j = 0; j < gameobjects[i].scripts.size(); j++) {
+			gameobjects[i].scripts[j]->update(&gameobjects[i]);
+		}
+	}
 }
 
 
@@ -368,10 +374,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		isSpeed = false;
 	if (key == GLFW_KEY_P && action == GLFW_PRESS)
 		isPerspective = !isPerspective;
-	if (key == GLFW_KEY_C && action == GLFW_PRESS) {
-		gameobjects[0].position = camera.position;
+	//if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+	//	gameobjects[0].position = camera.position;
+	//}
+	if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+		MonoBehaviour *fly = new Flying(glm::vec3(1, 0, 0), 0.1);
+		gameobjects[3].scripts.push_back(fly);
 	}
-
 		//creatGameobject();
 }
 void creatGameobject() {
@@ -399,11 +408,12 @@ void creatGameobject() {
 	gameobjects[1].localPosition = glm::vec3(1, 0, 0);
 	gameobjects[1].localRotation = glm::vec3(-PI / 2, 0, -PI / 2);
 
-	//Gameobject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
-	//dao.isActive = false;
-	//gameobjects.push_back(dao);
+	GameObject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+	dao.isActive = false;
+	gameobjects.push_back(dao);
 
 	GameObject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
 	dragon.isActive = false;
+
 	gameobjects.push_back(dragon);
 }
