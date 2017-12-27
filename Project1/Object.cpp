@@ -74,6 +74,11 @@ void Object::updatePosRotFromParent()
 	rotation.z = -z1;
 }
 
+void Object::rotateInWorld(glm::vec3 rot)
+{
+
+}
+
 void Object::setParent(Object &par)
 {
 	par.child = this;

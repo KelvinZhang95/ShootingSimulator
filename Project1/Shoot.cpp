@@ -20,6 +20,7 @@ void Shoot::update(GLFWwindow* window, GameObject * obj)
 			GameObject temp = *bulletprefab;
 			bulletprefab->scripts.push_back(fly);
 			bulletprefab->setPosition(obj->position);
+			bulletprefab->setRotation(cam->rotation);
 			gameobjects->push_back(*bulletprefab);
 			bulletprefab->scripts.clear();
 		}

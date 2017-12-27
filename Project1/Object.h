@@ -29,6 +29,7 @@ public:
 	glm::vec3 localPosition;
 	glm::mat4 getTR();
 	void updatePosRotFromParent();
+	void rotateInWorld(glm::vec3 rot);
 	void setParent(Object &par);
 	std::vector<class MonoBehaviour*> scripts;
 };
