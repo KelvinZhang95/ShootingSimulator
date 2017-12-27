@@ -39,6 +39,27 @@ glm::mat4 Object::getTR()
 void Object::updatePosRotFromParent()
 {
 	glm::mat4 TR = getTR();
+	updatePosRotFromTR(TR);
+}
+
+void Object::rotateInWorld(glm::vec3 rot)
+{
+	glm::mat4 rotMat1 = glm::eulerAngleXYZ(rotation.x, rotation.y, rotation.z);
+	glm::mat4 tranMat1 = glm::translate(glm::mat4(), position);
+	glm::mat4 rotMat2 = glm::eulerAngleXYZ(rot.x, rot.y, rot.z);
+	glm::mat4 tranMat2 = glm::translate(glm::mat4(), glm::vec3(0,0,0));
+	glm::mat4 TR = tranMat1 * rotMat1 * rotMat2;
+	updatePosRotFromTR(TR);
+}
+
+void Object::setParent(Object &par)
+{
+	par.child = this;
+	parent = &par;
+}
+
+void Object::updatePosRotFromTR(glm::mat4 &TR)
+{
 	//-------------- ¸ù¾ÝTR ¼ÆËã position------------
 	position.x = TR[3][0];
 	position.y = TR[3][1];
@@ -72,15 +93,4 @@ void Object::updatePosRotFromParent()
 	rotation.y = -y1;
 	rotation.x = -x1;
 	rotation.z = -z1;
-}
-
-void Object::rotateInWorld(glm::vec3 rot)
-{
-
-}
-
-void Object::setParent(Object &par)
-{
-	par.child = this;
-	parent = &par;
 }

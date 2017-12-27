@@ -14,7 +14,7 @@ public:
 	GameObject *bulletprefab;
 	vector<GameObject> *gameobjects;
 	Camera *cam;
-	Shoot(GameObject *bulletprefab_, vector<GameObject> *gameobjects_, Camera *cam,float shootInterval_ = 1.0f, float flySpeed_ = 0.0005);
+	Shoot(GameObject *bulletprefab_, vector<GameObject> *gameobjects_, Camera *cam,float shootInterval_ = 1.0f, float flySpeed_ = 0.05);
 	~Shoot();
 	void update(GLFWwindow* window, GameObject *obj);
 };

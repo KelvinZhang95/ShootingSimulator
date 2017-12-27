@@ -29,8 +29,11 @@ public:
 	glm::vec3 localPosition;
 	glm::mat4 getTR();
 	void updatePosRotFromParent();
-	void rotateInWorld(glm::vec3 rot);
+	void rotateInWorld(glm::vec3 rot);//可以指定绕着世界坐标系转某个欧拉角
 	void setParent(Object &par);
 	std::vector<class MonoBehaviour*> scripts;
+private:
+	void updatePosRotFromTR(glm::mat4 &TR);
+
 };
 #endif

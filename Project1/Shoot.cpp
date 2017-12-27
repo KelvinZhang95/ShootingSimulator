@@ -21,6 +21,7 @@ void Shoot::update(GLFWwindow* window, GameObject * obj)
 			bulletprefab->scripts.push_back(fly);
 			bulletprefab->setPosition(obj->position);
 			bulletprefab->setRotation(cam->rotation);
+			bulletprefab->rotateInWorld(glm::vec3(0, 180 * PI / 180, 0));
 			gameobjects->push_back(*bulletprefab);
 			bulletprefab->scripts.clear();
 		}
