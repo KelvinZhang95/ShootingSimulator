@@ -1,0 +1,172 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# 创建的文件:28.12.2017 17:53:09
+
+newmtl qiangguan
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.7200 0.7200 0.7200
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\qg.jpg
+	map_Kd maps\qg.jpg
+	map_d maps\qgtd.tga
+	map_bump maps\Map__134_fxot.tga
+
+newmtl xiaoshengqi
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.4500 0.4500 0.4500
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\xsq.jpg
+	map_Kd maps\xsq.jpg
+	map_bump maps\xsqot.jpg
+	bump maps\xsqot.jpg
+
+newmtl qiangshen
+	Ns 60.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.8100 0.8100 0.8100
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\qs.jpg
+	map_Kd maps\qs.jpg
+	map_bump maps\Map__152_fxot.tga
+
+newmtl daoqiguan
+	Ns 40.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.9000 0.9000 0.9000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\dqg.jpg
+	map_Kd maps\dqg.jpg
+	map_bump maps\dqgot.jpg
+	bump maps\dqgot.jpg
+
+newmtl miaozhunzhuangzhi
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.4500 0.4500 0.4500
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\mzzz.jpg
+	map_Kd maps\mzzz.jpg
+	map_bump maps\Map__170_fxot.tga
+
+newmtl danjia
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.8100 0.8100 0.8100
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\dj.jpg
+	map_Kd maps\dj.jpg
+	map_bump maps\Map__141_fxot.tga
+
+newmtl jingpian
+	Ns 60.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.0392 0.0392 0.0392
+	Kd 0.0392 0.0392 0.0392
+	Ks 1.1700 1.1700 1.1700
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\jp.jpg
+	map_Kd maps\jp.jpg
+	map_refl maps\jpfs.jpg
+
+newmtl banji
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.8100 0.8100 0.8100
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\bj.jpg
+	map_Kd maps\bj.jpg
+	map_bump maps\bjot.jpg
+	bump maps\bjot.jpg
+
+newmtl miaozhunjing
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.4500 0.4500 0.4500
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\mzj.jpg
+	map_Kd maps\mzj.jpg
+	map_bump maps\fxot.tga
+
+newmtl fujian
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.8100 0.8100 0.8100
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\fj.jpg
+	map_Kd maps\fj.jpg
+	map_bump maps\fjot.jpg
+	bump maps\fjot.jpg
+
+newmtl qiangtuo
+	Ns 50.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.9000 0.9000 0.9000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka maps\qt.JPG
+	map_Kd maps\qt.JPG
+	map_bump -bm 0.6000 maps\Map__162_fxot.tga

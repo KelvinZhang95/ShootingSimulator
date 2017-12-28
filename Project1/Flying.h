@@ -7,6 +7,7 @@ class Flying :public MonoBehaviour
 {
 public:
 	glm::vec3 velocity;
+	float lastTime;
 	float speed;
 	Flying(glm::vec3 &velocity_ = glm::vec3(), float speed_ = 0);
 	virtual ~Flying();

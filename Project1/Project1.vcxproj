@@ -119,6 +119,7 @@
     <ClCompile Include="Flying.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Gravity.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -137,6 +138,7 @@
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Flying.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="Gravity.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

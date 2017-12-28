@@ -19,6 +19,10 @@ void Shoot::update(GLFWwindow* window, GameObject * obj)
 			MonoBehaviour *fly = new Flying(cam->Front, flySpeed);
 			GameObject temp = *bulletprefab;
 			bulletprefab->scripts.push_back(fly);
+
+			MonoBehaviour *gravity = new Gravity(0.1);
+			bulletprefab->scripts.push_back(gravity);
+
 			bulletprefab->setPosition(obj->position);
 			bulletprefab->setRotation(cam->rotation);
 			bulletprefab->rotateInWorld(glm::vec3(0, 180 * PI / 180, 0));

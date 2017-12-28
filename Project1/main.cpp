@@ -366,25 +366,40 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 		//creatGameobject();
 }
+void adjust() {
+	float x, y, z, rx, ry, rz;
+	ifstream in;
+	in.open("in.txt");
+	in >> x >> y >> z >> rx >> ry >> rz;
+	rx = rx / 180 * PI;
+	ry = ry / 180 * PI;
+	rz = rz / 180 * PI;
+	gameobjects[1].localPosition = glm::vec3(x, y, z);
+	gameobjects[1].localRotation = glm::vec3(rx, ry, rz);
+	in.close();
+}
 void creatGameobject() {
-	string path1 = "resources/model/dragon/dragon.obj";
-	string path2 = "resources/model/nanosuit/nanosuit.obj";
-	//string path3 = "resources/model/scene/scene.obj";
-	string path4 = "resources/model/M4CQB/M4CQB.FBX";
-	string path5 = "resources/model/dao/dao.fbx";
-	string path6 = "resources/model/762/762.obj";
+	string path1 = "resources/model/dao/dao.fbx";
+	string path2 = "resources/model/M4CQB/M4CQB.FBX";
+	string path3 = "resources/model/SVD/svd.obj";
+	string path4 = "resources/model/762/762.obj";
+	string path5 = "resources/model/dragon/dragon.obj";
+	string path6 = "resources/model/nanosuit/nanosuit.obj";
 
-	GameObject man(path2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
-	GameObject M4(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.006f, 0.006f, 0.006f), glm::vec3(0, 0, 0));
-	GameObject dao(path5, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
-	GameObject dragon(path1, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
-	GameObject bullet762(path6, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0001f, 0.0001f, 0.0001f));
+	GameObject dao(path1, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.01f, 0.01f, 0.01f));
+	GameObject M4(path2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.006f, 0.006f, 0.006f), glm::vec3(0, 0, 0));
+	GameObject RSASS(path3, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.006f, 0.006f, 0.006f), glm::vec3(0, 0, 0));
+	GameObject bullet762(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0001f, 0.0001f, 0.0001f));
+	GameObject dragon(path5, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
+	GameObject man(path6, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
 
-	prefabs.push_back(man);
-	prefabs.push_back(M4);
 	prefabs.push_back(dao);
-	prefabs.push_back(dragon);
+	prefabs.push_back(M4);
+	prefabs.push_back(RSASS);
 	prefabs.push_back(bullet762);
+	prefabs.push_back(dragon);
+	prefabs.push_back(man);
+
 
 	gameobjects.push_back(prefabs[0]);
 
@@ -400,16 +415,10 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[3]);
 	gameobjects[3].isActive = false;//¹Ø±ÕÅö×²¼ì²â
 
-}
-void adjust() {
-	float x, y, z, rx, ry, rz;
-	ifstream in;
-	in.open("in.txt");
-	in >> x >> y >> z >> rx >> ry >> rz;
-	rx = rx / 180 * PI;
-	ry = ry / 180 * PI;
-	rz = rz / 180 * PI;
-	gameobjects[1].localPosition = glm::vec3(x,y,z);
-	gameobjects[1].localRotation = glm::vec3(rx, ry, rz);
-	in.close();
+	gameobjects.push_back(prefabs[4]);
+	gameobjects[3].isActive = false;//¹Ø±ÕÅö×²¼ì²â
+
+	gameobjects.push_back(prefabs[5]);
+	gameobjects[3].isActive = false;//¹Ø±ÕÅö×²¼ì²â
+
 }
