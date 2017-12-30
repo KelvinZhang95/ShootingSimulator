@@ -9,6 +9,16 @@ Object::Object(glm::vec3 position_, glm::vec3 rotation_, Object *child_, Object 
 
 Object::~Object()
 {
+	if (parent != NULL) {
+		parent->child = NULL;
+	}
+	if(child != NULL){
+		child->parent = NULL;
+	}
+	std::cout << "scripts.size is " << scripts.size() << std::endl;
+	for (int i = 0; i < scripts.size(); i++){
+		//delete scripts[i];
+	}
 }
 void Object::setPosition(glm::vec3 & newPosition)
 {

@@ -13,7 +13,7 @@ class MonoBehaviour
 {
 public:
 	MonoBehaviour();
-	~MonoBehaviour();
+	virtual ~MonoBehaviour();
 public:
 	virtual void update(GLFWwindow* window, GameObject *obj) {
 		//if (obj->parent == NULL) {

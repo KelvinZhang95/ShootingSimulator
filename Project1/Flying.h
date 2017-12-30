@@ -10,7 +10,7 @@ public:
 	float lastTime;
 	float speed;
 	Flying(glm::vec3 &velocity_ = glm::vec3(), float speed_ = 0);
-	virtual ~Flying();
+	~Flying();
 	void update(GLFWwindow* window, GameObject *obj);
 };
 #endif // !FLYING_H

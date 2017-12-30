@@ -104,5 +104,11 @@
     <ClInclude Include="Gravity.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="gui_render_helper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="text_render_helper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

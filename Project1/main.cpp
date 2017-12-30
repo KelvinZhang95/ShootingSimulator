@@ -74,10 +74,12 @@ int main()
 	//gameobjects.push_back(camera);
 	creatGameobject();
 	gameobjects[1].setParent(camera);
+	gameobjects[2].setParent(camera);
 	//glm::vec3 lightPos(1.0f, 6.0f, 1.0f);
 
 	BackGround background;
-	//imgui_helper.Initailize(window, SCR_WIDTH, SCR_HEIGHT);
+	TextRenderHelper text_helper(SCR_WIDTH, SCR_HEIGHT);
+	GuiRenderHelper gui_helper(SCR_WIDTH, SCR_HEIGHT);
 
 	// render loop
 
@@ -103,10 +105,10 @@ int main()
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
 		glm::mat4 model;
-		float near_plane = 0.1f, far_plane = 30.5f;
+		float near_plane = 0.1f, far_plane = 50.5f;
+		
 		{
-
-			lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+			lightProjection = glm::ortho(-20.0f, 20.0f, -20.0f, 20.0f, near_plane, far_plane);
 			lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 			lightSpaceMatrix = lightProjection * lightView;
 			// - now render scene from light's point of view
@@ -120,17 +122,18 @@ int main()
 
 
 			for (int i = 0; i < gameobjects.size(); i++) {
-				model = glm::mat4();
-				glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
-				glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
-				glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
-				model = trans * rot * sca;
-				gameobjects[i].model.Draw(simpleDepthShader, false);
+				if (gameobjects[i].isActive) {
+					model = glm::mat4();
+					glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
+					glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
+					glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
+					model = trans * rot * sca;
+					simpleDepthShader.setMat4("model", model);
+					gameobjects[i].model.Draw(simpleDepthShader, false);
+				}
 			}
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-
-		//imgui_helper.BeginRenderFramebuffer();
 
 		{		// render as normal
 			glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -162,20 +165,22 @@ int main()
 			lightingShader.setMat4("projection", projection);
 
 			for (int i = 0; i < gameobjects.size(); i++) {
-				model = glm::mat4();
-				glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
-				glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
-				glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
-				model = trans * rot * sca;
-				lightingShader.setMat4("model", model);
-				gameobjects[i].model.Draw(lightingShader, true);
+				if (gameobjects[i].isActive) {
+					model = glm::mat4();
+					glm::mat4 trans = glm::translate(glm::mat4(), gameobjects[i].position);
+					glm::mat4 rot = glm::eulerAngleXYZ(gameobjects[i].rotation.x, gameobjects[i].rotation.y, gameobjects[i].rotation.z);
+					glm::mat4 sca = glm::scale(model, gameobjects[i].scale);
+					model = trans * rot * sca;
+					lightingShader.setMat4("model", model);
+					gameobjects[i].model.Draw(lightingShader, true);
+				}
 			}
 			background.render(camera, projection);
-
+			text_helper.Render();
+			gui_helper.Render();
 		}
-		//imgui_helper.EndRenderFramebuffer();
+		
 
-		//imgui_helper.Render();
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -230,7 +235,7 @@ void processInput(GLFWwindow *window)
 	//}
 	if (hasMoved) {
 		for (int i = 0; i < gameobjects.size(); i++) {
-			if (gameobjects[i].isActive) {
+			if (gameobjects[i].isCollider) {
 				if (gameobjects[i].model.collider.containPoint(tryPosition)) {
 					cout << "in collider!" << endl;
 					return;
@@ -265,7 +270,8 @@ void updateScript(GLFWwindow *window)
 {
 	for (int i = 0; i < gameobjects.size(); i++) {
 		for (int j = 0; j < gameobjects[i].scripts.size(); j++) {
-			gameobjects[i].scripts[j]->update(window, &gameobjects[i]);
+			if(gameobjects[i].isActive)
+				gameobjects[i].scripts[j]->update(window, &gameobjects[i]);
 		}
 	}
 }
@@ -354,6 +360,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (key == GLFW_KEY_T && action == GLFW_PRESS) {
 		adjust();
 	}
+	if (key == GLFW_KEY_TAB && action == GLFW_PRESS) {
+		switchWeapon();
+	}
 	if (key == GLFW_KEY_GRAVE_ACCENT && action == GLFW_PRESS) {
 		if (cursorMode) {
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -374,9 +383,15 @@ void adjust() {
 	rx = rx / 180 * PI;
 	ry = ry / 180 * PI;
 	rz = rz / 180 * PI;
-	gameobjects[1].localPosition = glm::vec3(x, y, z);
-	gameobjects[1].localRotation = glm::vec3(rx, ry, rz);
+	gameobjects[2].localPosition = glm::vec3(x, y, z);
+	gameobjects[2].localRotation = glm::vec3(rx, ry, rz);
 	in.close();
+}
+void switchWeapon()
+{
+	gameobjects[nowWeapon].isActive = false;
+	gameobjects[3 - nowWeapon].isActive = true;
+	nowWeapon = 3 - nowWeapon;
 }
 void creatGameobject() {
 	string path1 = "resources/model/dao/dao.fbx";
@@ -404,21 +419,26 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[0]);
 
 	gameobjects.push_back(prefabs[1]);
-	gameobjects[1].localPosition = glm::vec3(1.0, -0.28, 0.1);
-	gameobjects[1].localRotation = glm::vec3(270 / 180 * PI, 0, 280 / 180 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[4], &gameobjects,&camera);
+	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
+	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
+	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera);
+	
 	gameobjects[1].scripts.push_back(shoot);
+	gameobjects[1].isActive = true;
+
 
 	gameobjects.push_back(prefabs[2]);
-	gameobjects[2].isActive = false;//¹Ø±ÕÅö×²¼ì²â
+	gameobjects[2].localPosition = glm::vec3(1.0, -0.28, 0.1);
+	gameobjects[2].localRotation = glm::vec3(270.0 / 180.0 * PI, 0, 280.0 / 180.0 * PI);
+	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, true);
+	gameobjects[2].scripts.push_back(shoot1);
+	gameobjects[2].isActive = false;
+
 
 	gameobjects.push_back(prefabs[3]);
-	gameobjects[3].isActive = false;//¹Ø±ÕÅö×²¼ì²â
 
 	gameobjects.push_back(prefabs[4]);
-	gameobjects[3].isActive = false;//¹Ø±ÕÅö×²¼ì²â
 
 	gameobjects.push_back(prefabs[5]);
-	gameobjects[3].isActive = false;//¹Ø±ÕÅö×²¼ì²â
 
 }

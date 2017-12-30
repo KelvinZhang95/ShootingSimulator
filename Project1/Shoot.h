@@ -12,10 +12,11 @@ public:
 	float shootInterval;
 	float flySpeed;
 	float lastShootTime;
+	bool isOffset;
 	GameObject *bulletprefab;
 	vector<GameObject> *gameobjects;
 	Camera *cam;
-	Shoot(GameObject *bulletprefab_, vector<GameObject> *gameobjects_, Camera *cam,float shootInterval_ = 1.0f, float flySpeed_ = 10);
+	Shoot(GameObject *bulletprefab_, vector<GameObject> *gameobjects_, Camera *cam, bool isOffset_ = false, float shootInterval_ = 1.0f, float flySpeed_ = 10);
 	~Shoot();
 	void update(GLFWwindow* window, GameObject *obj);
 };

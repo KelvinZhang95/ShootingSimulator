@@ -10,4 +10,5 @@ MonoBehaviour::MonoBehaviour()
 
 MonoBehaviour::~MonoBehaviour()
 {
+	//for()
 }

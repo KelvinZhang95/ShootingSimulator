@@ -1,6 +1,6 @@
 #include "GameObject.h"
 
-GameObject::GameObject(string modelPath_, glm::vec3 position_, glm::vec3 scale_, glm::vec3 rotation_, bool isActive_): isActive(isActive_),model(modelPath_)
+GameObject::GameObject(string modelPath_, glm::vec3 position_, glm::vec3 scale_, glm::vec3 rotation_, bool isActive_, bool isCollider_):isActive(isActive_),model(modelPath_),isCollider(isCollider_),isShadow(false)
 {
 	position = position_;
 	rotation = rotation_;
@@ -13,6 +13,7 @@ GameObject::GameObject(string modelPath_, glm::vec3 position_, glm::vec3 scale_,
 
 GameObject::~GameObject()
 {
+	
 }
 
 

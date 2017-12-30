@@ -138,7 +138,7 @@ newmtl miaozhunjing
 	Ke 0.0000 0.0000 0.0000
 	map_Ka maps\mzj.jpg
 	map_Kd maps\mzj.jpg
-	map_bump maps\fxot.tga
+	map_bump maps\Map__174_fxot.tga
 
 newmtl fujian
 	Ns 50.0000

@@ -19,7 +19,8 @@
 #include "GameObject.h"
 #include "Flying.h"
 #include "Shoot.h"
-
+#include "text_render_helper.h"
+#include "gui_render_helper.h"
 
 #include <iostream>
 #include <string>
@@ -34,6 +35,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void creatGameobject();
 void adjust();
+void switchWeapon();
 void processInput(GLFWwindow *window);
 void updateLogic(GLFWwindow *window);
 void updateScript(GLFWwindow *window);
@@ -56,10 +58,11 @@ float lastX = SCR_WIDTH / 2.0;
 float lastY = SCR_HEIGHT / 2.0;
 
 bool cursorMode = true;
-glm::vec3 lightPos(8.0f, 6.0f, 9.0f);
+glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
 Camera camera(glm::vec3(0.0f, 0.0f, 11.0f));
 vector<GameObject> gameobjects;
 vector<GameObject> prefabs;
 
 bool isPerspective = true;
+int nowWeapon = 1;
 //ImguiHelper imgui_helper;
