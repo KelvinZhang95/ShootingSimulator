@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "stb_image.h"
@@ -19,23 +18,8 @@
 #include "Object.h"
 
 
-struct Particle {
-	glm::vec3 pos, p_speed;
-	unsigned int r, g, b, a; // Color
-							 //unsigned int r, g, b, a; // Color
-	float size, angle, weight;
-	float life; // Remaining life of the particle. if <0 : dead and unused.
-	float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
 
-	bool operator<(const Particle& that) const {
-		// Sort in reverse order : far particles drawn first.
-		return this->cameradistance > that.cameradistance;
-	}
-};
 
-const int MaxParticles = 100000;
-Particle ParticlesContainer[MaxParticles];
-int LastUsedParticle = 0;
 
 //// Initial position : on +Z
 //glm::vec3 position = glm::vec3(0, 0, 5);
@@ -63,130 +47,28 @@ static const GLfloat g_vertex_buffer_data[] = {
 #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT 0x83F1
 #define GL_COMPRESSED_RGBA_S3TC_DXT3_EXT 0x83F2
 #define GL_COMPRESSED_RGBA_S3TC_DXT5_EXT 0x83F3
+struct Particle {
+	glm::vec3 pos, p_speed;
+	unsigned int r, g, b, a; // Color
+							 //unsigned int r, g, b, a; // Color
+	float size, angle, weight;
+	float life; // Remaining life of the particle. if <0 : dead and unused.
+	float cameradistance; // *Squared* distance to the camera. if dead : -1.0f
 
-GLuint loadDDS(const char * imagepath) {
-
-	unsigned char header[124];
-
-	FILE *fp;
-
-	/* try to open the file */
-	fp = fopen(imagepath, "rb");
-	if (fp == NULL) {
-		printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar();
-		return 0;
+	bool operator<(const Particle& that) const {
+		// Sort in reverse order : far particles drawn first.
+		return this->cameradistance > that.cameradistance;
 	}
-
-	/* verify the type of file */
-	char filecode[4];
-	fread(filecode, 1, 4, fp);
-	if (strncmp(filecode, "DDS ", 4) != 0) {
-		fclose(fp);
-		return 0;
-	}
-	cout << "Load Image correctly." << endl;
-	/* get the surface desc */
-	fread(&header, 124, 1, fp);
-
-	unsigned int height = *(unsigned int*)&(header[8]);
-	unsigned int width = *(unsigned int*)&(header[12]);
-	unsigned int linearSize = *(unsigned int*)&(header[16]);
-	unsigned int mipMapCount = *(unsigned int*)&(header[24]);
-	unsigned int fourCC = *(unsigned int*)&(header[80]);
+};
+const int MaxParticles = 100000;
 
 
-	unsigned char * buffer;
-	unsigned int bufsize;
-	/* how big is it going to be including all mipmaps? */
-	bufsize = mipMapCount > 1 ? linearSize * 2 : linearSize;
-	buffer = (unsigned char*)malloc(bufsize * sizeof(unsigned char));
-	fread(buffer, 1, bufsize, fp);
-	/* close the file pointer */
-	fclose(fp);
-
-	unsigned int components = (fourCC == FOURCC_DXT1) ? 3 : 4;
-	unsigned int format;
-	switch (fourCC)
-	{
-	case FOURCC_DXT1:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-		break;
-	case FOURCC_DXT3:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-		break;
-	case FOURCC_DXT5:
-		format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-		break;
-	default:
-		free(buffer);
-		return 0;
-	}
-
-	// Create one OpenGL texture
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
-	unsigned int offset = 0;
-
-	/* load the mipmaps */
-	for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
-	{
-		unsigned int size = ((width + 3) / 4)*((height + 3) / 4)*blockSize;
-		glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height,
-			0, size, buffer + offset);
-
-		offset += size;
-		width /= 2;
-		height /= 2;
-
-		// Deal with Non-Power-Of-Two textures. This code is not included in the webpage to reduce clutter.
-		if (width < 1) width = 1;
-		if (height < 1) height = 1;
-
-	}
-
-	free(buffer);
-
-	return textureID;
-
-
-}
-
-
-int FindUnusedParticle() {
-
-	for (int i = LastUsedParticle; i < MaxParticles; i++) {
-		if (ParticlesContainer[i].life < 0) {
-			LastUsedParticle = i;
-			return i;
-		}
-	}
-
-	for (int i = 0; i < LastUsedParticle; i++) {
-		if (ParticlesContainer[i].life < 0) {
-			LastUsedParticle = i;
-			return i;
-		}
-	}
-
-	return 0; // All particles are taken, override the first one
-}
-
-void SortParticles() {
-	std::sort(&ParticlesContainer[0], &ParticlesContainer[MaxParticles]);
-}
-
-class Particles : public Object 
+class Particles : public Object
 {
 public:
 	Particles() :ParticlesShader("shader/Particle.vertexshader", "shader/Particle.fragmentshader")
 	{
-
+		ParticlesContainer = new Particle[MaxParticles];
 		g_particule_position_size_data = new GLfloat[MaxParticles * 4];
 		g_particule_color_data = new GLubyte[MaxParticles * 4];
 		// Enable depth test
@@ -226,7 +108,8 @@ public:
 		glBufferData(GL_ARRAY_BUFFER, MaxParticles * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
 
 	}
-
+	Particle *ParticlesContainer;
+	int LastUsedParticle = 0;
 	void start() {
 		lastTime = glfwGetTime();
 	}
@@ -251,9 +134,13 @@ public:
 		// Generate 10 new particule each millisecond,
 		// but limit this to 16 ms (60 fps), or if you have 1 long frame (1sec),
 		// newparticles will be huge and the next frame even longer.
-		int newparticles = (int)(delta*10000.0);
-		if (newparticles > (int)(0.016f*10000.0))
-			newparticles = (int)(0.016f*10000.0);
+		int newparticles = 0;
+		if (if_display) {
+			newparticles = (int)(delta*10000.0);
+			if (newparticles > (int)(0.016f*10000.0))
+				newparticles = (int)(0.016f*10000.0);
+		}
+
 
 		for (int i = 0; i < newparticles; i++) {
 			int particleIndex = FindUnusedParticle();
@@ -265,8 +152,10 @@ public:
 			//front.y = sin(rotation.z);
 			//front.z = sin(-rotation.y) * cos(rotation.z);
 			//glm::vec3 Front = glm::normalize(front);
-			glm::vec4 front(1, 0, 0, 0);
-			glm::mat4 rot = glm::eulerAngleXYZ(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+			glm::vec3 front_3 = original_direction;
+			glm::vec4 front(original_direction.x, original_direction.y, original_direction.z, 0);
+
+			glm::mat4 rot = glm::eulerAngleXYZ(parent->rotation.x, parent->rotation.y, parent->rotation.z);
 			front = rot * front;
 			glm::vec3 Front = glm::normalize(glm::vec3(front.x, front.y, front.z));
 
@@ -291,10 +180,10 @@ public:
 
 			//ParticlesContainer[particleIndex].size = (rand() % 1000) / 2000.0f + 0.1f;
 
-			ParticlesContainer[particleIndex].r = 255;
-			ParticlesContainer[particleIndex].g = 153;
-			ParticlesContainer[particleIndex].b = 18;
-			ParticlesContainer[particleIndex].a = 256 / 3;
+			ParticlesContainer[particleIndex].r = rgba.x;
+			ParticlesContainer[particleIndex].g = rgba.y;
+			ParticlesContainer[particleIndex].b = rgba.z;
+			ParticlesContainer[particleIndex].a = rgba[3] / 3;
 
 			ParticlesContainer[particleIndex].size = size;
 		}
@@ -447,7 +336,8 @@ public:
 
 	void clean()
 	{
-		delete[] g_particule_position_size_data;
+		//delete[] ParticlesContainer;
+		//delete[] g_particule_position_size_data;
 		glDeleteBuffers(1, &particles_color_buffer);
 		glDeleteBuffers(1, &particles_position_buffer);
 		glDeleteBuffers(1, &billboard_vertex_buffer);
@@ -461,7 +351,122 @@ public:
 		position = newPosition;
 	}
 
+	inline GLuint loadDDS(const char * imagepath) {
 
+		unsigned char header[124];
+
+		FILE *fp;
+
+		/* try to open the file */
+		fp = fopen(imagepath, "rb");
+		if (fp == NULL) {
+			printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar();
+			return 0;
+		}
+
+		/* verify the type of file */
+		char filecode[4];
+		fread(filecode, 1, 4, fp);
+		if (strncmp(filecode, "DDS ", 4) != 0) {
+			fclose(fp);
+			return 0;
+		}
+		cout << "Load Image correctly." << endl;
+		/* get the surface desc */
+		fread(&header, 124, 1, fp);
+
+		unsigned int height = *(unsigned int*)&(header[8]);
+		unsigned int width = *(unsigned int*)&(header[12]);
+		unsigned int linearSize = *(unsigned int*)&(header[16]);
+		unsigned int mipMapCount = *(unsigned int*)&(header[24]);
+		unsigned int fourCC = *(unsigned int*)&(header[80]);
+
+
+		unsigned char * buffer;
+		unsigned int bufsize;
+		/* how big is it going to be including all mipmaps? */
+		bufsize = mipMapCount > 1 ? linearSize * 2 : linearSize;
+		buffer = (unsigned char*)malloc(bufsize * sizeof(unsigned char));
+		fread(buffer, 1, bufsize, fp);
+		/* close the file pointer */
+		fclose(fp);
+
+		unsigned int components = (fourCC == FOURCC_DXT1) ? 3 : 4;
+		unsigned int format;
+		switch (fourCC)
+		{
+		case FOURCC_DXT1:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			break;
+		case FOURCC_DXT3:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+			break;
+		case FOURCC_DXT5:
+			format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			break;
+		default:
+			free(buffer);
+			return 0;
+		}
+
+		// Create one OpenGL texture
+		GLuint textureID;
+		glGenTextures(1, &textureID);
+
+		// "Bind" the newly created texture : all future texture functions will modify this texture
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+		unsigned int blockSize = (format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+		unsigned int offset = 0;
+
+		/* load the mipmaps */
+		for (unsigned int level = 0; level < mipMapCount && (width || height); ++level)
+		{
+			unsigned int size = ((width + 3) / 4)*((height + 3) / 4)*blockSize;
+			glCompressedTexImage2D(GL_TEXTURE_2D, level, format, width, height,
+				0, size, buffer + offset);
+
+			offset += size;
+			width /= 2;
+			height /= 2;
+
+			// Deal with Non-Power-Of-Two textures. This code is not included in the webpage to reduce clutter.
+			if (width < 1) width = 1;
+			if (height < 1) height = 1;
+
+		}
+
+		free(buffer);
+
+		return textureID;
+
+
+	}
+
+
+	int FindUnusedParticle() {
+
+		for (int i = LastUsedParticle; i < MaxParticles; i++) {
+			if (ParticlesContainer[i].life < 0) {
+				LastUsedParticle = i;
+				return i;
+			}
+		}
+
+		for (int i = 0; i < LastUsedParticle; i++) {
+			if (ParticlesContainer[i].life < 0) {
+				LastUsedParticle = i;
+				return i;
+			}
+		}
+
+		return 0; // All particles are taken, override the first one
+	}
+
+	void SortParticles() {
+		std::sort(&ParticlesContainer[0], &ParticlesContainer[MaxParticles]);
+	}
 
 	void setGravity(glm::vec3 &newGravity)
 	{
@@ -487,7 +492,22 @@ public:
 	{
 		life = newlife;
 	}
+	void setOriginalDirection(glm::vec3 neworiginaldirection)
+	{
+		original_direction = neworiginaldirection;
+	}
 
+	void setRgb(glm::vec4 newrgba)
+	{
+		rgba = newrgba;
+	}
+
+	void setIfDisplay(bool newifdisplay)
+	{
+		if_display = newifdisplay;
+	}
+
+	bool if_display;
 
 private:
 
@@ -507,5 +527,7 @@ private:
 	unsigned int beamspeed;
 	float spread, size, life;
 
+	glm::vec3  original_direction;
+	glm::vec4 rgba;
 };
 

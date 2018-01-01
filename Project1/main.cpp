@@ -82,7 +82,8 @@ int main()
 	//MiniMapDot mini_map_dot(SCR_WIDTH, SCR_HEIGHT);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	text_helper.Render(0);
+	text_helper.Render(0,"Loading...", SCR_WIDTH - 225,25);
+	text_helper.Render(0, "Dragon Hunter", SCR_WIDTH / 2 - 110, SCR_HEIGHT / 2 - 25);
 	glfwSwapBuffers(window);
 
 	gameobjects.reserve(1000);
@@ -93,13 +94,16 @@ int main()
 
 	srand((unsigned)time(NULL));
 	// render loop
-
+	int startTime = (int)glfwGetTime();
+	int remainTime = 60;
 	while (!glfwWindowShouldClose(window))
 	{
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
+		remainTime = 60 - (int)currentFrame + startTime;
+		if (remainTime < 0)
+			remainTime = 0;
 		// input
 		processInput(window);
 
@@ -185,8 +189,12 @@ int main()
 			if (!scope)
 			{
 				std::vector<glm::vec3> tmp;
-				tmp.push_back(glm::vec3(camera.position[0] + 10, camera.position[1], camera.position[2]));
-				glm::vec2 direction(1, 0);
+				for (int i = 0; i < enemies.size(); i++)
+				{
+					tmp.push_back(gameobjects[enemies[i]].position);
+				}
+				glm::vec2 cameraXZ(camera.Front.x, -camera.Front.z);
+				glm::vec2 direction = glm::normalize(cameraXZ);
 				mini_map.Render(camera.position, tmp, direction);
 			}
 			//particles.setPosition(gameobjects[1].position);
@@ -198,7 +206,25 @@ int main()
 			//particles.render(camera, projection);
 
 			background.render(camera, projection);
-			text_helper.Render(scope);
+			std::stringstream ss;
+			if (remainTime > 0) {
+				ss << score;
+				finalScore = score;
+			}
+			else {
+				ss << finalScore;
+			}
+			ss >> danmu;
+			danmu = "SCORE: " + danmu;
+			text_helper.Render(scope, danmu, 25, 25);
+			
+			std::stringstream ss1;
+			ss1 << remainTime;
+			string timestr;
+			ss1 >> timestr;
+			timestr = "Time: " + timestr;
+			text_helper.Render(scope, timestr, SCR_WIDTH / 2 - 110, SCR_HEIGHT - 55);
+
 			gui_helper.Render(scope);
 
 		}
@@ -285,7 +311,7 @@ void processInput(GLFWwindow *window)
 				prev_d = d2;
 			}
 		}
-		camera.position = tryPosition;
+		
 		
 	}
 
@@ -444,8 +470,8 @@ void adjust() {
 	rx = rx / 180 * PI;
 	ry = ry / 180 * PI;
 	rz = rz / 180 * PI;
-	gameobjects[2].localPosition = glm::vec3(x, y, z);
-	gameobjects[2].localRotation = glm::vec3(rx, ry, rz);
+	//ParticlesList[0].localPosition = glm::vec3(x, y, z);
+	//ParticlesList[0].localRotation = glm::vec3(rx, ry, rz);
 	in.close();
 }
 void switchWeapon()
@@ -468,14 +494,14 @@ void creatGameobject() {
 	GameObject RSASS(path3, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.006f, 0.006f, 0.006f), glm::vec3(0, 0, 0));
 	GameObject bullet762(path4, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0001f, 0.0001f, 0.0001f));
 	GameObject dragon(path5, glm::vec3(4.0218, 10.5945, -0.371), glm::vec3(0.0020f, 0.0020f, 0.0020f));
-	GameObject man(path6, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
+	//GameObject man(path6, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0, 0, 0));
 
 	prefabs.push_back(dao);
 	prefabs.push_back(M4);
 	prefabs.push_back(RSASS);
 	prefabs.push_back(bullet762);
 	prefabs.push_back(dragon);
-	prefabs.push_back(man);
+	//prefabs.push_back(man);
 
 
 	gameobjects.push_back(prefabs[0]);//dao
@@ -483,46 +509,59 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[1]);//m4
 	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
 	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, false, 0.15f, 10,0);
+	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, false, 0.25f, 100,0.1);
 	
 	gameobjects[1].scripts.push_back(shoot);
 	gameobjects[1].isActive = true;
 
 
 	gameobjects.push_back(prefabs[2]);//sniper
-	gameobjects[2].localPosition = glm::vec3(1.0, -0.28, 0.1);
-	gameobjects[2].localRotation = glm::vec3(270.0 / 180.0 * PI, 0, 280.0 / 180.0 * PI);
-	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, true, 1.5f, 200,0);
+	gameobjects[2].localPosition = glm::vec3(0.42, -0.18, 0.05);
+	gameobjects[2].localRotation = glm::vec3(-1 / 180.0 * PI, 1 / 180.0 * PI, -4 / 180.0 * PI);
+	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, true, 1.1f, 200,0.3);
 	gameobjects[2].scripts.push_back(shoot1);
 	gameobjects[2].isActive = false;
 
 
 	gameobjects.push_back(prefabs[3]);//bullet
 
-	gameobjects.push_back(prefabs[4]);//dragon
-	enemies.push_back(4);
-	MonoBehaviour *enemyAction = new EnemyAction();
-	gameobjects[4].scripts.push_back(enemyAction);
-
-	gameobjects.push_back(prefabs[5]);
-
-	Particles particles;
-	particles.setSpread(0.125f);
-	particles.setSize(0.005f);
-	particles.setGravity(glm::vec3(0, 0, 0));
-	particles.setLife(0.2f);
-	particles.setBeamspeed(5.0f);
-	ParticlesList.push_back(particles);
-	ParticlesList[0].setParent(gameobjects[1]);
-
+	//gameobjects.push_back(prefabs[4]);//dragon
+	//enemies.push_back(4);
+	//MonoBehaviour *enemyAction = new EnemyAction();
+	//gameobjects[4].scripts.push_back(enemyAction);
 	Particles particles1;
-	particles1.setSpread(1.25f);
-	particles1.setSize(0.5f);
+	particles1.setSpread(1.55f);
+	particles1.setSize(0.3f);
 	particles1.setGravity(glm::vec3(0, 0, 0));
-	particles1.setLife(15.0f);
+	particles1.setLife(1.3f);
 	particles1.setBeamspeed(15.0f);
-	ParticlesList.push_back(particles1);
-	ParticlesList[1].setParent(gameobjects[4]);
+	particles1.setRgb(glm::vec4(255, 69, 0, 255 *3));
+	particles1.setOriginalDirection(glm::vec3(0, 0, 1));
+	particles1.localPosition = glm::vec3(0, 2, 1.3);
+	particles1.setIfDisplay(true);
+	for (int i = 4; i < 4 + dragonNum; i++) {
+		ParticlesList.push_back(particles1);
+		prefabs[4].setPosition(glm::vec3((rand() % 60 - 30), (rand() % 20 - 5), (rand() % 60 - 30)));
+		cout << "prefabs is " << prefabs[4].position.x << " " <<prefabs[4].position.y << " " << prefabs[4].position.z << endl;
+		gameobjects.push_back(prefabs[4]);//dragon
+		enemies.push_back(i);
+		MonoBehaviour *enemyAction = new EnemyAction(&ParticlesList, i - 4, (float)(rand() % 2 + 1) / 10.0f);
+		gameobjects[i].scripts.push_back(enemyAction);
+		ParticlesList[i - 4].setParent(gameobjects[i]);
+	}
+
+	//Particles particles;
+	//particles.setSpread(0.225f);
+	//particles.setSize(0.003f);
+	//particles.setGravity(glm::vec3(0, 0, 0));
+	//particles.setLife(0.05f);
+	//particles.setBeamspeed(3.0f);
+	//ParticlesList.push_back(particles);
+	//ParticlesList[0].setParent(gameobjects[1]);
+	//ParticlesList[0].localPosition = glm::vec3(0, 0.42, 0);
+
+
+
 
 	//build AABB Tree for dao
 	std::vector<int> used;

@@ -2,8 +2,9 @@
 
 
 
-EnemyAction::EnemyAction() :lastTime(0.0f),randAngle(0.0f),lastChangeTime(0.0f),interval(3.0f)
+EnemyAction::EnemyAction(vector<Particles> *ParticlesList_, int ParticlesIndex_, float rate_) :lastTime(0.0f),randAngle(0.0f),lastChangeTime(0.0f),interval(3.0f),rate(rate_), ParticlesList(ParticlesList_), ParticlesIndex(ParticlesIndex_)
 {
+	offsetTime = rand() % 10;
 }
 
 
@@ -33,13 +34,13 @@ void EnemyAction::update(GLFWwindow * window, GameObject * obj)
 	glm::vec3 front(front4.x, front4.y, front4.z);
 	//cout << "dragon toward" << glm::normalize(front).x << " " << glm::normalize(front).y << " " << glm::normalize(front).z << endl;
 	//cout << "dragon position" << obj->position.x << " " << obj->position.y << " " << obj->position.z << endl;
-	float rate = 0.1f;
 	obj->position.x += glm::normalize(front).x * rate;
 	obj->position.y += glm::normalize(front).y * rate;
 	obj->position.z += glm::normalize(front).z * rate;
 	obj->model.collider.updateOnScalePos(obj->scale,obj->position);
-
-
+	cout << "dragon fire " << (int)currentTime << endl;
+	bool temp = ((int)(currentTime + offsetTime) % 10) > 4;
+	(*ParticlesList)[ParticlesIndex].setIfDisplay(temp);
 
 }
 

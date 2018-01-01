@@ -20,7 +20,7 @@
 #include "text_render_helper.h"
 #include "gui_render_helper.h"
 #include "mini_map.h"
-#include "Particles.h"
+//#include "Particles.h"
 
 #include <stdlib.h> 
 #include <time.h> 
@@ -34,6 +34,7 @@ using namespace std;
 #define miny 4.8
 #define maxy 5.7
 #define circlexy 12
+#define dragonNum 10
 glm::mat4 TRSum;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -82,3 +83,5 @@ AABBTree aabb_tree_ground;
 AABBTree aabb_tree_others;
 
 int score = 0;
+int finalScore = 0;
+string danmu;
