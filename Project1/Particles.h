@@ -109,6 +109,7 @@ public:
 
 	}
 	Particle *ParticlesContainer;
+	float endTime;
 	int LastUsedParticle = 0;
 	void start() {
 		lastTime = glfwGetTime();
@@ -124,6 +125,9 @@ public:
 		glm::mat4 ViewProjectionMatrix = projection * view;
 
 		double currentTime = glfwGetTime();
+		if (currentTime > endTime && endTime > 0) {
+			if_display = false;
+		}
 		double delta = currentTime - lastTime;
 		lastTime = currentTime;
 
@@ -154,9 +158,11 @@ public:
 			//glm::vec3 Front = glm::normalize(front);
 			glm::vec3 front_3 = original_direction;
 			glm::vec4 front(original_direction.x, original_direction.y, original_direction.z, 0);
-
-			glm::mat4 rot = glm::eulerAngleXYZ(parent->rotation.x, parent->rotation.y, parent->rotation.z);
-			front = rot * front;
+			if (parent) {
+				glm::mat4 rot = glm::eulerAngleXYZ(parent->rotation.x, parent->rotation.y, parent->rotation.z);
+				front = rot * front;
+			}
+			
 			glm::vec3 Front = glm::normalize(glm::vec3(front.x, front.y, front.z));
 
 			//cout << "Front:" << Front.x << " " << Front.y << " " << Front.z << endl;

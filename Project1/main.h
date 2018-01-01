@@ -20,7 +20,7 @@
 #include "text_render_helper.h"
 #include "gui_render_helper.h"
 #include "mini_map.h"
-//#include "Particles.h"
+#include "Particles.h"
 
 #include <stdlib.h> 
 #include <time.h> 

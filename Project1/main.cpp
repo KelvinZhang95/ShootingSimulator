@@ -223,7 +223,7 @@ int main()
 			string timestr;
 			ss1 >> timestr;
 			timestr = "Time: " + timestr;
-			text_helper.Render(scope, timestr, SCR_WIDTH / 2 - 110, SCR_HEIGHT - 55);
+			text_helper.Render(scope, timestr, 25, SCR_HEIGHT - 55);
 
 			gui_helper.Render(scope);
 
@@ -509,7 +509,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[1]);//m4
 	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
 	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, false, 0.25f, 100,0.1);
+	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &ParticlesList,&score, false, 0.25f, 100,0.1);
 	
 	gameobjects[1].scripts.push_back(shoot);
 	gameobjects[1].isActive = true;
@@ -518,7 +518,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[2]);//sniper
 	gameobjects[2].localPosition = glm::vec3(0.42, -0.18, 0.05);
 	gameobjects[2].localRotation = glm::vec3(-1 / 180.0 * PI, 1 / 180.0 * PI, -4 / 180.0 * PI);
-	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, true, 1.1f, 200,0.3);
+	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &ParticlesList,&score, true, 1.1f, 200,0.3);
 	gameobjects[2].scripts.push_back(shoot1);
 	gameobjects[2].isActive = false;
 
@@ -530,6 +530,7 @@ void creatGameobject() {
 	//MonoBehaviour *enemyAction = new EnemyAction();
 	//gameobjects[4].scripts.push_back(enemyAction);
 	Particles particles1;
+	particles1.endTime = -1;
 	particles1.setSpread(1.55f);
 	particles1.setSize(0.3f);
 	particles1.setGravity(glm::vec3(0, 0, 0));
