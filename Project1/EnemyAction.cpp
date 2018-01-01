@@ -23,7 +23,7 @@ void EnemyAction::update(GLFWwindow * window, GameObject * obj)
 	if (currentTime - lastChangeTime > interval)
 	{
 		randAngle = (float)(rand() % 60 - 60) / (float)180 * 3.14159;
-		randAngle1 = (float)(rand() % 20 - 20) / (float)180 * 3.14159;
+		randAngle1 = (float)(rand() % 12 - 8) / (float)180 * 3.14159;
 		lastChangeTime = currentTime;
 	}
 	obj->rotateInWorld(glm::vec3(deltaTime / interval * randAngle1, deltaTime / interval * randAngle, 0));
@@ -37,7 +37,7 @@ void EnemyAction::update(GLFWwindow * window, GameObject * obj)
 	obj->position.x += glm::normalize(front).x * rate;
 	obj->position.y += glm::normalize(front).y * rate;
 	obj->position.z += glm::normalize(front).z * rate;
-	obj->model.collider.updateOnScalePos(glm::vec3(1,1,1),obj->position);
+	obj->model.collider.updateOnScalePos(obj->scale,obj->position);
 
 
 

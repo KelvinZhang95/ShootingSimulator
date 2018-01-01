@@ -14,8 +14,8 @@ Flying::~Flying()
 }
 void Flying::update(GLFWwindow* window, GameObject *obj) {
 	float nowTime = glfwGetTime();
-	if (nowTime - bornTime > survivalTime)
-		obj->isActive = false;
+	//if (nowTime - bornTime > survivalTime)
+	//	obj->isActive = false;
 	float deltaTime = nowTime - lastTime;
 	lastTime = nowTime;
 	if (obj->parent == NULL) {

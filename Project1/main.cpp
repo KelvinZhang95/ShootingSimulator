@@ -84,7 +84,8 @@ int main()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	text_helper.Render(0);
 	glfwSwapBuffers(window);
-	gameobjects.reserve(100);
+
+	gameobjects.reserve(1000);
 	creatGameobject();
 	gameobjects[1].setParent(camera);
 	gameobjects[2].setParent(camera);
@@ -260,15 +261,15 @@ void processInput(GLFWwindow *window)
 
 	//}
 	if (hasMoved) {
-		/*for (int i = 0; i < gameobjects.size(); i++) {
-		if (gameobjects[i].isActive) {
-		if (gameobjects[i].model.collider.containPoint(tryPosition)) {
-		cout << "in collider!" << endl;
-		return;
-		}
-		}
-		}
-		camera.position = tryPosition;*/
+		//for (int i = 0; i < gameobjects.size(); i++) {
+		//if (gameobjects[i].isActive) {
+		//if (gameobjects[i].model.collider.containPoint(tryPosition)) {
+		//cout << "in collider!" << endl;
+		//return;
+		//}
+		//}
+		//}
+		//camera.position = tryPosition;
 		static float prev_d = 0;
 
 		glm::vec3 try1, try2;
@@ -284,6 +285,7 @@ void processInput(GLFWwindow *window)
 				prev_d = d2;
 			}
 		}
+		camera.position = tryPosition;
 		
 	}
 
@@ -325,9 +327,10 @@ void updateLogic(GLFWwindow *window) {
 void updateScript(GLFWwindow *window)
 {
 	for (int i = 0; i < gameobjects.size(); i++) {
-		for (int j = 0; j < gameobjects[i].scripts.size(); j++) {
-			if(gameobjects[i].isActive)
+		if (gameobjects[i].isActive) {
+			for (int j = 0; j < gameobjects[i].scripts.size(); j++) {
 				gameobjects[i].scripts[j]->update(window, &gameobjects[i]);
+			}
 		}
 	}
 }
@@ -480,7 +483,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[1]);//m4
 	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
 	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, false, 0.2f, 200,0);
+	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, false, 0.15f, 10,0);
 	
 	gameobjects[1].scripts.push_back(shoot);
 	gameobjects[1].isActive = true;
@@ -489,7 +492,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[2]);//sniper
 	gameobjects[2].localPosition = glm::vec3(1.0, -0.28, 0.1);
 	gameobjects[2].localRotation = glm::vec3(270.0 / 180.0 * PI, 0, 280.0 / 180.0 * PI);
-	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, true, 1.5f, 200,0);
+	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, &score, true, 1.5f, 200,0);
 	gameobjects[2].scripts.push_back(shoot1);
 	gameobjects[2].isActive = false;
 
@@ -497,7 +500,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[3]);//bullet
 
 	gameobjects.push_back(prefabs[4]);//dragon
-	enemies.push_back(&gameobjects[4]);
+	enemies.push_back(4);
 	MonoBehaviour *enemyAction = new EnemyAction();
 	gameobjects[4].scripts.push_back(enemyAction);
 
@@ -521,7 +524,7 @@ void creatGameobject() {
 	ParticlesList.push_back(particles1);
 	ParticlesList[1].setParent(gameobjects[4]);
 
-	// build AABB Tree for dao
+	//build AABB Tree for dao
 	std::vector<int> used;
 	used = std::vector<int>(gameobjects[0].model.meshes.size(), 1);
 	used[3] = used[4] = used[20] = used[27] = used[16] = used[17] = 0;

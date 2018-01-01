@@ -6,8 +6,11 @@ class HitJudge :
 	public MonoBehaviour
 {
 public:
-	vector<GameObject *> *enemies;
-	HitJudge(vector<GameObject *> *enemies_);
+	int *score;
+	vector<int> *enemies;
+	vector<GameObject> *gameobjects;
+
+	HitJudge(vector<GameObject> *gameobjects_, vector<int> *enemies_, int *score_);
 	~HitJudge();
 	void update(GLFWwindow* window, GameObject *obj);
 };

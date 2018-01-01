@@ -71,7 +71,7 @@ glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
 Camera camera(glm::vec3(0.0f, 5.7f, 8.88f));
 vector<GameObject> gameobjects;
 vector<GameObject> prefabs;
-vector<GameObject *> enemies;
+vector<int> enemies;
 vector<Particles> ParticlesList;
 
 bool isPerspective = true;

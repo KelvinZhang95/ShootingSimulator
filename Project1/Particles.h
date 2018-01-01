@@ -186,6 +186,9 @@ class Particles : public Object
 public:
 	Particles() :ParticlesShader("shader/Particle.vertexshader", "shader/Particle.fragmentshader")
 	{
+
+		g_particule_position_size_data = new GLfloat[MaxParticles * 4];
+		g_particule_color_data = new GLubyte[MaxParticles * 4];
 		// Enable depth test
 		glEnable(GL_DEPTH_TEST);
 		// Accept fragment if it closer to the camera than the former one
@@ -493,8 +496,8 @@ private:
 	GLuint billboard_vertex_buffer, particles_position_buffer, particles_color_buffer;
 	GLuint VertexArrayID;
 
-	static GLfloat* g_particule_position_size_data;
-	static GLubyte* g_particule_color_data;
+	GLfloat* g_particule_position_size_data;
+	GLubyte* g_particule_color_data;
 
 	double lastTime;
 
@@ -506,5 +509,3 @@ private:
 
 };
 
-GLfloat* Particles::g_particule_position_size_data = new GLfloat[MaxParticles * 4];
-GLubyte* Particles::g_particule_color_data = new GLubyte[MaxParticles * 4];
