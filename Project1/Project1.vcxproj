@@ -121,6 +121,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Gravity.cpp" />
+    <ClCompile Include="HitJudge.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Gravity.h" />
     <ClInclude Include="gui_render_helper.h" />
+    <ClInclude Include="HitJudge.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />

@@ -1,6 +1,6 @@
 #include "Shoot.h"
 
-Shoot::Shoot(GameObject * bulletprefab_, vector<GameObject>* gameobjects_, Camera *cam_, bool isOffset_, float shootInterval_, float flySpeed_):bulletprefab(bulletprefab_), gameobjects(gameobjects_), shootInterval(shootInterval_), flySpeed(flySpeed_),cam(cam_),isOffset(isOffset_)
+Shoot::Shoot(GameObject * bulletprefab_, vector<GameObject>* gameobjects_, Camera *cam_, vector<GameObject *> *enemies_, bool isOffset_, float shootInterval_, float flySpeed_):enemies(enemies_),bulletprefab(bulletprefab_), gameobjects(gameobjects_), shootInterval(shootInterval_), flySpeed(flySpeed_),cam(cam_),isOffset(isOffset_)
 {
 
 }
@@ -29,6 +29,10 @@ void Shoot::update(GLFWwindow* window, GameObject * obj)
 			{
 				temp.setPosition(obj->position);
 			}
+
+			MonoBehaviour *hitjudge = new HitJudge(enemies);
+			temp.scripts.push_back(hitjudge);
+
 			temp.setRotation(cam->rotation);
 			temp.rotateInWorld(glm::vec3(0, 180 * PI / 180, 0));
 			gameobjects->push_back(temp);

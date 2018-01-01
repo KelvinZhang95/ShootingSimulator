@@ -15,7 +15,7 @@ Object::~Object()
 	if(child != NULL){
 		child->parent = NULL;
 	}
-	std::cout << "scripts.size is " << scripts.size() << std::endl;
+	//std::cout << "scripts.size is " << scripts.size() << std::endl;
 	for (int i = 0; i < scripts.size(); i++){
 		//delete scripts[i];
 	}

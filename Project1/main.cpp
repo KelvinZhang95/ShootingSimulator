@@ -421,7 +421,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[1]);
 	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
 	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera);
+	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies);
 	
 	gameobjects[1].scripts.push_back(shoot);
 	gameobjects[1].isActive = true;
@@ -430,7 +430,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[2]);
 	gameobjects[2].localPosition = glm::vec3(1.0, -0.28, 0.1);
 	gameobjects[2].localRotation = glm::vec3(270.0 / 180.0 * PI, 0, 280.0 / 180.0 * PI);
-	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, true);
+	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, true);
 	gameobjects[2].scripts.push_back(shoot1);
 	gameobjects[2].isActive = false;
 
@@ -438,6 +438,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[3]);
 
 	gameobjects.push_back(prefabs[4]);
+	enemies.push_back(&gameobjects[4]);
 
 	gameobjects.push_back(prefabs[5]);
 

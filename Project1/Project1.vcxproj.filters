@@ -57,6 +57,9 @@
     <ClCompile Include="Gravity.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="HitJudge.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -108,6 +111,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="text_render_helper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="HitJudge.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

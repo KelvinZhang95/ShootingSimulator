@@ -62,7 +62,7 @@ glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
 Camera camera(glm::vec3(0.0f, 0.0f, 11.0f));
 vector<GameObject> gameobjects;
 vector<GameObject> prefabs;
+vector<GameObject *> enemies;
 
 bool isPerspective = true;
 int nowWeapon = 1;
-//ImguiHelper imgui_helper;
