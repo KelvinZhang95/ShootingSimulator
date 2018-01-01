@@ -60,6 +60,9 @@
     <ClCompile Include="HitJudge.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyAction.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -114,6 +117,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="HitJudge.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyAction.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mini_map.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

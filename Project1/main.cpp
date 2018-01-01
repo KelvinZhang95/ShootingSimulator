@@ -74,15 +74,23 @@ int main()
 	lightingShader.setInt("shadowMap", 1);
 
 	//gameobjects.push_back(camera);
+
+	BackGround background;
+	TextRenderHelper text_helper(SCR_WIDTH, SCR_HEIGHT);
+	GuiRenderHelper gui_helper(SCR_WIDTH, SCR_HEIGHT);
+	MiniMap mini_map(SCR_WIDTH, SCR_HEIGHT);
+	//MiniMapDot mini_map_dot(SCR_WIDTH, SCR_HEIGHT);
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	text_helper.Render(0);
+	glfwSwapBuffers(window);
+	gameobjects.reserve(100);
 	creatGameobject();
 	gameobjects[1].setParent(camera);
 	gameobjects[2].setParent(camera);
 	//glm::vec3 lightPos(1.0f, 6.0f, 1.0f);
 
-	BackGround background;
-	TextRenderHelper text_helper(SCR_WIDTH, SCR_HEIGHT);
-	GuiRenderHelper gui_helper(SCR_WIDTH, SCR_HEIGHT);
-
+	srand((unsigned)time(NULL));
 	// render loop
 
 	while (!glfwWindowShouldClose(window))
@@ -173,9 +181,17 @@ int main()
 					gameobjects[i].model.Draw(lightingShader, true);
 				}
 			}
+			if (!scope)
+			{
+				std::vector<glm::vec3> tmp;
+				tmp.push_back(glm::vec3(camera.position[0] + 10, camera.position[1], camera.position[2]));
+				glm::vec2 direction(1, 0);
+				mini_map.Render(camera.position, tmp, direction);
+			}
 			background.render(camera, projection);
 			text_helper.Render(scope);
 			gui_helper.Render(scope);
+
 		}
 		
 
@@ -232,14 +248,34 @@ void processInput(GLFWwindow *window)
 
 	//}
 	if (hasMoved) {
-		float d1 = aabb_tree_ground.Query(tryPosition[0], tryPosition[1], tryPosition[2]);
-		float d2 = aabb_tree_others.Query(tryPosition[0], tryPosition[1], tryPosition[2]);
-		std::cout << "distance to ground: " << d1 << "\t\tdistance to others: " << d2 << "\n";
-		if (d1 > 5000 && d2 > 5000)
-			camera.position = tryPosition;
+		/*for (int i = 0; i < gameobjects.size(); i++) {
+		if (gameobjects[i].isActive) {
+		if (gameobjects[i].model.collider.containPoint(tryPosition)) {
+		cout << "in collider!" << endl;
+		return;
+		}
+		}
+		}
+		camera.position = tryPosition;*/
+		static float prev_d = 0;
+
+		glm::vec3 try1, try2;
+		try1 = try2 = tryPosition;
+		float d1 = aabb_tree_ground.Query(try1);
+		float d2 = aabb_tree_others.Query(try2);
+		//std::cout << "distance to ground: " << d1 << "\t\tdistance to others: " << d2 << "\n";
+		if (positionJudge(tryPosition)) {
+			if (d2 > 2000 || d2 > prev_d)
+			{
+
+				camera.position = tryPosition;
+				prev_d = d2;
+			}
+		}
+		
 	}
 
-	//cout << "camera.front" << camera.Front.x << ", " << camera.Front.y<< ", " << camera.Front.z <<endl;
+	//cout << "camera " << camera.position.x << ", " << camera.position.y<< ", " << camera.position.z <<endl;
 }
 void updateChildPosRot()
 {
@@ -247,6 +283,17 @@ void updateChildPosRot()
 	for (int i = 0; i < gameobjects.size(); i++) {
 		gameobjects[i].updatePosRotFromParent();
 	}
+}
+bool positionJudge(glm::vec3 &position)
+{
+	//if (sqrt(position.x * position.x + position.z * position.z) > circlexy)
+	//	return false;
+	if (position.y > maxy)
+		position.y = maxy;
+	else if (position.y < miny) {
+		position.y = miny;
+	}
+	return true;
 }
 void updateKinematics()
 {
@@ -368,7 +415,7 @@ void mouse_button_callback(GLFWwindow * window, int button, int action, int mode
 			scope = !scope;
 		}
 	}
-		
+	camera.Zoom = 45.0f - (int)scope * 33.0f;
 
 }
 void adjust() {
@@ -418,7 +465,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[1]);
 	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
 	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, false, 0.2f, 50,0.1);
+	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, false, 0.2f, 200,0);
 	
 	gameobjects[1].scripts.push_back(shoot);
 	gameobjects[1].isActive = true;
@@ -427,7 +474,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[2]);
 	gameobjects[2].localPosition = glm::vec3(1.0, -0.28, 0.1);
 	gameobjects[2].localRotation = glm::vec3(270.0 / 180.0 * PI, 0, 280.0 / 180.0 * PI);
-	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, true, 1.5f, 100,0.5);
+	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, true, 1.5f, 200,0);
 	gameobjects[2].scripts.push_back(shoot1);
 	gameobjects[2].isActive = false;
 
@@ -436,12 +483,18 @@ void creatGameobject() {
 
 	gameobjects.push_back(prefabs[4]);
 	enemies.push_back(&gameobjects[4]);
+	MonoBehaviour *enemyAction = new EnemyAction();
+	gameobjects[4].scripts.push_back(enemyAction);
 
 	gameobjects.push_back(prefabs[5]);
 
 
 	// build AABB Tree for dao
-	aabb_tree_ground.Build(gameobjects[0].model.meshes, true);
-	aabb_tree_others.Build(gameobjects[0].model.meshes, false);
-
+	std::vector<int> used;
+	used = std::vector<int>(gameobjects[0].model.meshes.size(), 1);
+	used[3] = used[4] = used[20] = used[27] = used[16] = used[17] = 0;
+	aabb_tree_others.Build(gameobjects[0].model.meshes, used);
+	used = std::vector<int>(gameobjects[0].model.meshes.size(), 0);
+	used[16] = used[17] = 1;
+	aabb_tree_ground.Build(gameobjects[0].model.meshes, used);
 }

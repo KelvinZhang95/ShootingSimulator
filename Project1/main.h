@@ -16,15 +16,23 @@
 #include "GameObject.h"
 #include "Flying.h"
 #include "Shoot.h"
+#include "EnemyAction.h"
 #include "text_render_helper.h"
 #include "gui_render_helper.h"
+#include "mini_map.h"
 
+#include <stdlib.h> 
+#include <time.h> 
 #include <iostream>
 #include <string>
 #include <math.h>
 #include <fstream>
+#include <memory>
 using namespace std;
 #define PI 3.1415926f
+#define miny 4.8
+#define maxy 5.7
+#define circlexy 12
 glm::mat4 TRSum;
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -41,6 +49,7 @@ void updateLogic(GLFWwindow *window);
 void updateScript(GLFWwindow *window);
 void updateKinematics();
 void updateChildPosRot();
+bool positionJudge(glm::vec3 &position);
 
 // settings
 extern unsigned int SCR_WIDTH = 1200;
@@ -58,7 +67,7 @@ float lastY = SCR_HEIGHT / 2.0;
 
 bool cursorMode = true;
 glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
-Camera camera(glm::vec3(0.0f, 0.0f, 11.0f));
+Camera camera(glm::vec3(0.0f, 5.7f, 8.88f));
 vector<GameObject> gameobjects;
 vector<GameObject> prefabs;
 vector<GameObject *> enemies;
@@ -70,3 +79,4 @@ bool scope = false;
 AABBTree aabb_tree_ground;
 AABBTree aabb_tree_others;
 
+int score = 0;

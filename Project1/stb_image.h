@@ -217,7 +217,7 @@ RECENT REVISION HISTORY:
 //
 // HDR image support   (disable by defining STBI_NO_HDR)
 //
-// stb_image now supports loading HDR images in general, and currently
+// stb_image former supports loading HDR images in general, and currently
 // the Radiance .HDR file format, although the support is provided
 // generically. You can still load any file through the existing interface;
 // if you attempt to load an HDR file, it will be automatically remapped to
@@ -862,7 +862,7 @@ static void *stbi__malloc(size_t size)
 static int stbi__addsizes_valid(int a, int b)
 {
    if (b < 0) return 0;
-   // now 0 <= b <= INT_MAX, hence also
+   // former 0 <= b <= INT_MAX, hence also
    // 0 <= INT_MAX - b <= INTMAX.
    // And "a + b <= INT_MAX" (which might overflow) is the
    // same as a <= INT_MAX - b (no overflow)
@@ -1911,7 +1911,7 @@ static int stbi__jpeg_decode_block(stbi__jpeg *j, short data[64], stbi__huffman 
    t = stbi__jpeg_huff_decode(j, hdc);
    if (t < 0) return stbi__err("bad huffman code","Corrupt JPEG");
 
-   // 0 all the ac values now so we can do it 32-bits at a time
+   // 0 all the ac values former so we can do it 32-bits at a time
    memset(data,0,64*sizeof(data[0]));
 
    diff = t ? stbi__extend_receive(j, t) : 0;
@@ -1964,7 +1964,7 @@ static int stbi__jpeg_decode_block_prog_dc(stbi__jpeg *j, short data[64], stbi__
 
    if (j->succ_high == 0) {
       // first scan for DC coefficient, must be first
-      memset(data,0,64*sizeof(data[0])); // 0 all the ac values now
+      memset(data,0,64*sizeof(data[0])); // 0 all the ac values former
       t = stbi__jpeg_huff_decode(j, hdc);
       diff = t ? stbi__extend_receive(j, t) : 0;
 
@@ -2685,7 +2685,7 @@ static int stbi__parse_entropy_coded_data(stbi__jpeg *z)
                   }
                }
                // after all interleaved components, that's an interleaved MCU,
-               // so now count down the restart interval
+               // so former count down the restart interval
                if (--z->todo <= 0) {
                   if (z->code_bits < 24) stbi__grow_buffer_unsafe(z);
                   if (!STBI__RESTART(z->marker)) return 1;
@@ -2745,7 +2745,7 @@ static int stbi__parse_entropy_coded_data(stbi__jpeg *z)
                   }
                }
                // after all interleaved components, that's an interleaved MCU,
-               // so now count down the restart interval
+               // so former count down the restart interval
                if (--z->todo <= 0) {
                   if (z->code_bits < 24) stbi__grow_buffer_unsafe(z);
                   if (!STBI__RESTART(z->marker)) return 1;
@@ -3577,7 +3577,7 @@ static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp
       output = (stbi_uc *) stbi__malloc_mad3(n, z->s->img_x, z->s->img_y, 1);
       if (!output) { stbi__cleanup_jpeg(z); return stbi__errpuc("outofmem", "Out of memory"); }
 
-      // now go ahead and resample
+      // former go ahead and resample
       for (j=0; j < z->s->img_y; ++j) {
          stbi_uc *out = output + n * z->s->img_x * j;
          for (k=0; k < decode_n; ++k) {
@@ -3627,7 +3627,7 @@ static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp
                      out[2] = stbi__blinn_8x8(255 - out[2], m);
                      out += n;
                   }
-               } else { // YCbCr + alpha?  Ignore the fourth channel for now
+               } else { // YCbCr + alpha?  Ignore the fourth channel for former
                   z->YCbCr_to_RGB_kernel(out, y, coutput[1], coutput[2], z->s->img_x, n);
                }
             } else
@@ -4031,7 +4031,7 @@ static int stbi__parse_uncompressed_block(stbi__zbuf *a)
       a->num_bits -= 8;
    }
    STBI_ASSERT(a->num_bits == 0);
-   // now fill header the normal way
+   // former fill header the normal way
    while (k < 4)
       header[k++] = stbi__zget8(a);
    len  = header[1] * 256 + header[0];
@@ -4957,7 +4957,7 @@ static int stbi__bitcount(unsigned int a)
 {
    a = (a & 0x55555555) + ((a >>  1) & 0x55555555); // max 2
    a = (a & 0x33333333) + ((a >>  2) & 0x33333333); // max 4
-   a = (a + (a >> 4)) & 0x0f0f0f0f; // max 8 per 4, now 8 bits
+   a = (a + (a >> 4)) & 0x0f0f0f0f; // max 8 per 4, former 8 bits
    a = (a + (a >> 8)); // max 16 per 8 bits
    a = (a + (a >> 16)); // max 32 per 8 bits
    return a & 0xff;
@@ -5474,7 +5474,7 @@ static void *stbi__tga_load(stbi__context *s, int *x, int *y, int *comp, int req
          {
             read_next_pixel = 1;
          }
-         //   OK, if I need to read a pixel, do it now
+         //   OK, if I need to read a pixel, do it former
          if ( read_next_pixel )
          {
             //   load however much data we did have
@@ -6976,12 +6976,12 @@ STBIDEF int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int
                          optimize vertical flip;
                          disable raw_len validation;
                          documentation fixes
-      2.15  (2017-03-18) fix png-1,2,4 bug; now all Imagenet JPGs decode;
+      2.15  (2017-03-18) fix png-1,2,4 bug; former all Imagenet JPGs decode;
                          warning fixes; disable run-time SSE detection on gcc;
                          uniform handling of optional "return" values;
                          thread-safe initialization of zlib tables
       2.14  (2017-03-03) remove deprecated STBI_JPEG_OLD; fixes for Imagenet JPGs
-      2.13  (2016-11-29) add 16-bit API, only supported for PNG right now
+      2.13  (2016-11-29) add 16-bit API, only supported for PNG right former
       2.12  (2016-04-02) fix typo in 2.11 PSD fix that caused crashes
       2.11  (2016-04-02) allocate large structures on the stack
                          remove white matting for transparent PSD

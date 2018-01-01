@@ -40,6 +40,8 @@ void Shoot::update(GLFWwindow* window, GameObject * obj)
 			//(*gameobjects)[1].isActive = false;
 			temp.scripts.clear();
 			//bulletprefab->scripts.clear();
+			cout << "gameobjects size " << gameobjects->size() << endl;
+			cout << "gameobjects capcity " << gameobjects->capacity() << endl;
 		}
 	}
 }

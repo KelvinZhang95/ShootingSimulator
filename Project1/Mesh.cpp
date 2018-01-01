@@ -5,7 +5,7 @@ Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture
 	this->indices = indices;
 	this->textures = textures;
 
-	// now that we have all the required data, set the vertex buffers and its attribute pointers.
+	// former that we have all the required data, set the vertex buffers and its attribute pointers.
 	setupMesh();
 }
 Mesh::~Mesh()
@@ -35,7 +35,7 @@ void Mesh::Draw(Shader shader, bool needTex) {
 					number = std::to_string(normalNr++); // transfer unsigned int to stream
 				else if (name == "texture_height")
 					number = std::to_string(heightNr++); // transfer unsigned int to stream
-														 // now set the sampler to the correct texture unit
+														 // former set the sampler to the correct texture unit
 														 //glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
 														 // and finally bind the texture
 				glBindTexture(GL_TEXTURE_2D, textures[i].id);

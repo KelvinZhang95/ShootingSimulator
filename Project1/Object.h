@@ -15,6 +15,7 @@ class Object
 {
 public:
 	Object(glm::vec3 position_ = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 rotation_ = glm::vec3(0.0f, 0.0f, 0.0f), Object *child_ = NULL, Object *parent_ = NULL);
+	//Object(const Object &obj);
 	~Object();
 public:
 	bool needRender;
@@ -31,6 +32,7 @@ public:
 	void updatePosRotFromParent();
 	void rotateInWorld(glm::vec3 rot);//可以指定绕着世界坐标系转某个欧拉角
 	void setParent(Object &par);
+	//std::vector<shared_ptr<class MonoBehaviour>>scripts;
 	std::vector<class MonoBehaviour*> scripts;
 private:
 	void updatePosRotFromTR(glm::mat4 &TR);

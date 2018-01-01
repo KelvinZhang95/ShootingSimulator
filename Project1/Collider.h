@@ -51,7 +51,7 @@ class AABBTree
 public:
 	AABBTree()
 	{
-		
+
 	}
 
 	~AABBTree()
@@ -59,22 +59,12 @@ public:
 	}
 
 
-	void Build(std::vector<Mesh>& mesh, bool is_ground)
+	void Build(std::vector<Mesh>& mesh, std::vector<int> used)
 	{
-		std::vector<int> m_index;
-		if(is_ground){
-			for (int i = 0; i < 16; i++)
-				m_index.push_back(i);
-			for (int i = 18; i < mesh.size(); i++)
-				m_index.push_back(i);
-		}
-		else {
-			m_index.push_back(16);
-			m_index.push_back(17);
-		}
-		for (int mm = 0; mm < m_index.size(); mm++)
+		for (int m = 0; m < mesh.size(); m++)
 		{
-			int m = m_index[mm];
+			if (used[m] == 0)
+				continue;
 			std::vector<Triangle> tmp_triangles;
 			std::vector<Point> tmp_points;
 
@@ -100,10 +90,12 @@ public:
 		tree.accelerate_distance_queries();
 	}
 
-	float Query(float x, float y, float z)
+	float Query(glm::vec3& v)
 	{
-		Point point_query(x * 100, y * 100, z * 100);
+		Point point_query(v[0] * 100, v[1] * 100, v[2] * 100);
 		float sqd = tree.squared_distance(point_query);
+		Point vv = tree.closest_point(point_query);
+		v = glm::vec3(vv.x() / 100, vv.y() / 100, vv.z() / 100);
 		return sqd;
 	}
 

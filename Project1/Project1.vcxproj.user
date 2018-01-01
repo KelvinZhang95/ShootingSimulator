@@ -4,4 +4,8 @@
     <LocalDebuggerEnvironment>path=%path%;$(SolutionDir)\packages\CGAL\dll</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerEnvironment>path=%path%;$(SolutionDir)\packages\CGAL\dll</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

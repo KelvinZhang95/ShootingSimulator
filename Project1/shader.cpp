@@ -48,7 +48,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	glAttachShader(ID, fragment);
 	glLinkProgram(ID);
 	checkCompileErrors(ID, "PROGRAM");
-	// delete the shaders as they're linked into our program now and no longer necessary
+	// delete the shaders as they're linked into our program former and no longer necessary
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 }

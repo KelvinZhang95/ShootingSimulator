@@ -7,6 +7,18 @@ Object::Object(glm::vec3 position_, glm::vec3 rotation_, Object *child_, Object 
 	needRender = true;
 }
 
+//Object::Object(const Object & obj)
+//{
+//	needRender = obj.needRender;
+//	position = obj.position;
+//	rotation = obj.rotation;
+//	child = obj.child;
+//	parent = obj.parent;
+//	localRotation = obj.localRotation;
+//	localPosition = obj.localPosition;
+//
+//}
+
 Object::~Object()
 {
 	if (parent != NULL) {

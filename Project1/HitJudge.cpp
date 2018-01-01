@@ -13,7 +13,11 @@ void HitJudge::update(GLFWwindow* window, GameObject * obj) {
 	for (int i = 0; i < enemies->size(); i++) {
 		//Happy new year!2018
 		if ((*enemies)[i]->model.collider.containPoint(obj->position)) {
-			cout << "hit!";
+			cout << "hit!1" << endl;
+			cout << "hit!22" << endl;
+			cout << "hit!333" << endl << endl;
+
+			obj->isActive = false;
 			break;
 		}
 	}
