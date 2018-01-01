@@ -1,5 +1,7 @@
 *.db
 x64/
-debug/
-release/
+/debug/
+/release/
+/Project1/Release
+/Project1/Debug
 *.opendb
