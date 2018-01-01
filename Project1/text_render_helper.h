@@ -112,11 +112,14 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void Render()
+	void Render(float mask)
 	{
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		shader.use();
+		shader.setFloat("mask", mask);
 
 		RenderText(shader, "Your Score: 0", 25.0f, 25.0f, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
 		//RenderText(shader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));

@@ -21,8 +21,10 @@ public:
 
 	~GuiRenderHelper()
 	{
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &VBO);
+		glDeleteVertexArrays(1, &VAO1);
+		glDeleteVertexArrays(1, &VAO2);
+		glDeleteBuffers(1, &VBO1);
+		glDeleteBuffers(1, &VBO2);
 	}
 
 	GuiRenderHelper(int w, int h)
@@ -31,91 +33,143 @@ public:
 	{
 		glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(width), 0.0f, static_cast<GLfloat>(height));
 		shader.use();
-		//glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		shader.setMat4("projection", projection);
 
-		float vertices[] = {
-			width / 2 - 400, height / 2 + 1, 0.0f, 
-			width / 2 - 400, height / 2 - 0, 0.0f, 
-			width / 2 - 40, height / 2 + 1, 0.0f,  
+		int ox = width / 2;
+		int oy = height / 2;
+		int r = std::min(ox, oy);
+		int a = std::max(ox, oy);
+		int pixel = 1;
+		int rr = 0;
 
-			width / 2 + 40, height / 2 + 1, 0.0f,
-			width / 2 + 40, height / 2 - 0, 0.0f,
-			width / 2 + 400, height / 2 + 1, 0.0f,
+		shader.use();
+		shader.setFloat("ox", ox);
+		shader.setFloat("oy", oy);
 
-			width / 2 - 40, height / 2 + 1, 0.0f,
-			width / 2 - 400, height / 2 - 0, 0.0f,
-			width / 2 - 40, height / 2 - 0, 0.0f,
 
-			width / 2 + 400, height / 2 + 1, 0.0f,
-			width / 2 + 40, height / 2 - 0, 0.0f,
-			width / 2 + 400, height / 2 - 0, 0.0f,
-
-			width / 2 + 1, height / 2 - 400, 0.0f,
-			width / 2 + 1, height / 2 - 40, 0.0f,
-			width / 2 - 0, height / 2 - 400, 0.0f,
-
-			width / 2 + 1, height / 2 - 400, 0.0f,
-			width / 2 + 1, height / 2 - 40, 0.0f,
-			width / 2 - 0, height / 2 - 400, 0.0f,
-
-			width / 2 + 1, height / 2 + 400, 0.0f,
-			width / 2 - 0, height / 2 + 400, 0.0f,
-			width / 2 - 0, height / 2 + 40, 0.0f,
-
-			width / 2 + 1, height / 2 + 400, 0.0f,
-			width / 2 - 0, height / 2 + 400, 0.0f,
-			width / 2 - 0, height / 2 + 40, 0.0f,
-
-			// the whole screen
-			0, height, 0.0f,
-			0, 0, 0.0f,
-			width, height, 0.0f,
-
-			width, height, 0.0f,
-			0, 0, 0.0f,
-			width, 0, 0.0f,
+		float vertices1[] = {
+			// left 
+			ox - r,			oy + pixel,		0.0f,		0,
+			ox - r,			oy - 0,			0.0f,		0,
+			ox - rr,		oy + pixel,		0.0f,		0,
+			ox - rr,		oy + pixel,		0.0f,		0,
+			ox - r,			oy - 0,			0.0f,		0,
+			ox - rr,		oy - 0,			0.0f,		0,
+			// right 
+			ox + rr,		oy + pixel,		0.0f,		0,
+			ox + rr,		oy - 0,			0.0f,		0,
+			ox + r,			oy + pixel,		0.0f,		0,
+			ox + r,			oy + pixel,		0.0f,		0,
+			ox + rr,		oy - 0,			0.0f,		0,
+			ox + r,			oy - 0,			0.0f,		0,
+			// top
+			ox + pixel,		oy + rr,		0.0f,		0,
+			ox + pixel,		oy + r,			0.0f,		0,
+			ox - 0,			oy + rr,		0.0f,		0,
+			ox + pixel,		oy + r,			0.0f,		0,
+			ox - 0,			oy + r,			0.0f,		0,
+			ox - 0,			oy + rr,		0.0f,		0,
+			// button
+			ox + pixel,		oy - rr,		0.0f,		0,
+			ox - 0,			oy - rr,		0.0f,		0,
+			ox + pixel,		oy - r,			0.0f,		0,
+			ox + pixel,		oy - r,			0.0f,		0,
+			ox - 0,			oy - rr,		0.0f,		0,
+			ox - 0,			oy - r,			0.0f,		0,
+			//
+			ox + a,			oy + a,			0.0,		1,
+			ox - a,			oy + a,			0.0,		1,
+			ox - a,			oy - a,			0.0,		1,
+			ox + a,			oy + a,			0.0,		1,
+			ox - a,			oy - a,			0.0,		1,
+			ox + a,			oy - a,			0.0,		1,
+		};
+		
+		r /= 7;
+		rr = 25;
+		float vertices2[] = {
+			// left 
+			ox - r,			oy + pixel,		0.0f,		0,
+			ox - r,			oy - 0,			0.0f,		0,
+			ox - rr,		oy + pixel,		0.0f,		0,
+			ox - rr,		oy + pixel,		0.0f,		0,
+			ox - r,			oy - 0,			0.0f,		0,
+			ox - rr,		oy - 0,			0.0f,		0,
+			// right 
+			ox + rr,		oy + pixel,		0.0f,		0,
+			ox + rr,		oy - 0,			0.0f,		0,
+			ox + r,			oy + pixel,		0.0f,		0,
+			ox + r,			oy + pixel,		0.0f,		0,
+			ox + rr,		oy - 0,			0.0f,		0,
+			ox + r,			oy - 0,			0.0f,		0,
+			// top
+			ox + pixel,		oy + rr,		0.0f,		0,
+			ox + pixel,		oy + r,			0.0f,		0,
+			ox - 0,			oy + rr,		0.0f,		0,
+			ox + pixel,		oy + r,			0.0f,		0,
+			ox - 0,			oy + r,			0.0f,		0,
+			ox - 0,			oy + rr,		0.0f,		0,
+			// button
+			ox + pixel,		oy - rr,		0.0f,		0,
+			ox - 0,			oy - rr,		0.0f,		0,
+			ox + pixel,		oy - r,			0.0f,		0,
+			ox + pixel,		oy - r,			0.0f,		0,
+			ox - 0,			oy - rr,		0.0f,		0,
+			ox - 0,			oy - r,			0.0f,		0,
+			//
+			ox + a,			oy + a,			0.0,		1,
+			ox - a,			oy + a,			0.0,		1,
+			ox - a,			oy - a,			0.0,		1,
+			ox + a,			oy + a,			0.0,		1,
+			ox - a,			oy - a,			0.0,		1,
+			ox + a,			oy - a,			0.0,		1,
 		};
 
-		glGenVertexArrays(1, &VAO);
-		glGenBuffers(1, &VBO);
-		// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-		glBindVertexArray(VAO);
-
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glGenVertexArrays(1, &VAO2);
+		glGenBuffers(1, &VBO2);
+		glBindVertexArray(VAO2);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
-
-		// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
 
-		// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-		// VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+		glGenVertexArrays(1, &VAO1);
+		glGenBuffers(1, &VBO1);
+		glBindVertexArray(VAO1);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
 
-	void Render()
+	void Render(float mask)
 	{
 		shader.use();
-		glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-		glDrawArrays(GL_TRIANGLES, 0, 24);
+		shader.setFloat("mask", mask);
 
-		GLfloat twicePi = 2.0f * PI;
-
-		glBegin(GL_LINE_LOOP);
-		for (int i = 0; i <= 100; i++) {
-			glVertex2f(
-				width / 2 + (100 * cos(i *  twicePi / 100)),
-				height / 2 + (100 * sin(i * twicePi / 100))
-			);
+		//glBindVertexArray(VAO1);
+		if (mask)
+		{
+			glBindVertexArray(VAO1);
+			glDrawArrays(GL_TRIANGLES, 0, 30);
 		}
-		glEnd();
+		else
+		{
+			glBindVertexArray(VAO2);
+			glDrawArrays(GL_TRIANGLES, 0, 24);
+		}
 	}
 
 private:
 	Shader shader;
-	GLuint VAO, VBO;
+	GLuint VAO1, VBO1, VAO2, VBO2;
 	float width, height;
 };

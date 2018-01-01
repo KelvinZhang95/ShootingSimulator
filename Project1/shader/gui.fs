@@ -1,20 +1,23 @@
 #version 330 core
+in float f_circle;
 
 out vec4 FragColor;
-
-float circle(in vec2 _st, in float _radius){
-    vec2 dist = _st-vec2(0.5);
-	return 1.0-smoothstep(_radius-(_radius*0.01),
-                         _radius+(_radius*0.01),
-                         dot(dist,dist)*4.0);
-}
+uniform float ox;
+uniform float oy;
 
 void main(){
-	vec2 u_resolution = vec2(100, 100);
-	vec2 st = gl_FragCoord.xy/u_resolution.xy;
+	//FragColor = vec4(0.0, 0.0, 0.0, 0.5);
+	if(f_circle < 0.1)
+	{
+		FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+	}
+	else
+	{
+		vec2 uv = gl_FragCoord.xy - vec2(ox, oy);
+  		float dist =  sqrt(dot(uv, uv));
 
-	vec3 color = vec3(circle(st,0.9));
+  		FragColor = mix(vec4(.90, .90, .90, 0.0), vec4(.0, .0, .0, 1.0), smoothstep(399.0, 401.0, dist));
 
-	gl_FragColor = vec4( color, 1.000 );
-	//gl_FragColor = vec4(1.0,0.0,1.0,1.0);
+  		//FragColor = (dist < min(ox, oy)) ? vec4(0.0, 0.0, 0.0, 0.0) : vec4(0.0, 0.0, 0.0, 1.0);
+	}
 }

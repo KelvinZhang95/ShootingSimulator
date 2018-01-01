@@ -26,6 +26,8 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+
 
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -88,10 +90,6 @@ int main()
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		//cout << "fps : " << 1 / deltaTime << endl;
-
-
-		//ImGui_ImplGlfwGL3_NewFrame();
 
 		// input
 		processInput(window);
@@ -176,8 +174,8 @@ int main()
 				}
 			}
 			background.render(camera, projection);
-			text_helper.Render();
-			gui_helper.Render();
+			text_helper.Render(scope);
+			gui_helper.Render(scope);
 		}
 		
 
@@ -234,17 +232,13 @@ void processInput(GLFWwindow *window)
 
 	//}
 	if (hasMoved) {
-		for (int i = 0; i < gameobjects.size(); i++) {
-			if (gameobjects[i].isCollider) {
-				if (gameobjects[i].model.collider.containPoint(tryPosition)) {
-					cout << "in collider!" << endl;
-					return;
-				}
-			}
-		}
-		camera.position = tryPosition;
+		float d1 = aabb_tree_ground.Query(tryPosition[0], tryPosition[1], tryPosition[2]);
+		float d2 = aabb_tree_others.Query(tryPosition[0], tryPosition[1], tryPosition[2]);
+		std::cout << "distance to ground: " << d1 << "\t\tdistance to others: " << d2 << "\n";
+		if (d1 > 5000 && d2 > 5000)
+			camera.position = tryPosition;
 	}
-	
+
 	//cout << "camera.front" << camera.Front.x << ", " << camera.Front.y<< ", " << camera.Front.z <<endl;
 }
 void updateChildPosRot()
@@ -286,14 +280,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
-//	// update framebuffer
-//	int display_w, display_h;
-//	glfwGetFramebufferSize(window, &display_w, &display_h);
-//	SCR_WIDTH = display_w;
-//	SCR_HEIGHT = display_h;
-//
-//	imgui_helper.Resize(display_w, display_h);
-//	imgui_helper.RecreateFramebuffer();
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -375,6 +361,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 		//creatGameobject();
 }
+void mouse_button_callback(GLFWwindow * window, int button, int action, int mode)
+{
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+		if (nowWeapon == 2) {
+			scope = !scope;
+		}
+	}
+		
+
+}
 void adjust() {
 	float x, y, z, rx, ry, rz;
 	ifstream in;
@@ -389,6 +385,7 @@ void adjust() {
 }
 void switchWeapon()
 {
+	scope = false;
 	gameobjects[nowWeapon].isActive = false;
 	gameobjects[3 - nowWeapon].isActive = true;
 	nowWeapon = 3 - nowWeapon;
@@ -421,7 +418,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[1]);
 	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
 	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
-	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies);
+	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, false, 0.2f, 50,0.1);
 	
 	gameobjects[1].scripts.push_back(shoot);
 	gameobjects[1].isActive = true;
@@ -430,7 +427,7 @@ void creatGameobject() {
 	gameobjects.push_back(prefabs[2]);
 	gameobjects[2].localPosition = glm::vec3(1.0, -0.28, 0.1);
 	gameobjects[2].localRotation = glm::vec3(270.0 / 180.0 * PI, 0, 280.0 / 180.0 * PI);
-	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, true);
+	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, true, 1.5f, 100,0.5);
 	gameobjects[2].scripts.push_back(shoot1);
 	gameobjects[2].isActive = false;
 
@@ -441,5 +438,10 @@ void creatGameobject() {
 	enemies.push_back(&gameobjects[4]);
 
 	gameobjects.push_back(prefabs[5]);
+
+
+	// build AABB Tree for dao
+	aabb_tree_ground.Build(gameobjects[0].model.meshes, true);
+	aabb_tree_others.Build(gameobjects[0].model.meshes, false);
 
 }

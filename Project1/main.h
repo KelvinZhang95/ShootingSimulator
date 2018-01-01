@@ -8,9 +8,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm\gtx\euler_angles.hpp>
 
-//#include "imgui/imgui.h"
-//#include "imgui/imgui_impl_glfw_gl3.h"
-//#include "imgui_helper.h"
 #include "background.h"
 
 #include "shader.h"
@@ -33,6 +30,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mode);
+
+
 void creatGameobject();
 void adjust();
 void switchWeapon();
@@ -41,7 +41,6 @@ void updateLogic(GLFWwindow *window);
 void updateScript(GLFWwindow *window);
 void updateKinematics();
 void updateChildPosRot();
-//void setTexture(unsigned int *texture, string  filepath, bool ispng);
 
 // settings
 extern unsigned int SCR_WIDTH = 1200;
@@ -66,3 +65,8 @@ vector<GameObject *> enemies;
 
 bool isPerspective = true;
 int nowWeapon = 1;
+bool scope = false;
+
+AABBTree aabb_tree_ground;
+AABBTree aabb_tree_others;
+

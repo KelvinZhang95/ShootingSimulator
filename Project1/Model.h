@@ -15,11 +15,11 @@ public:
 	Model(string const &path, bool gamma = false);
 	void Draw(Shader shader, bool needTex);
 	Collider collider;
+	vector<Mesh> meshes;
 
 private:
 	/*  模型数据  */
 	vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-	vector<Mesh> meshes;
 	string directory;
 	bool gammaCorrection;
 	/*  函数   */
