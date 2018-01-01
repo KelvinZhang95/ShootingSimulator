@@ -74,7 +74,7 @@ int main()
 	lightingShader.setInt("shadowMap", 1);
 
 	//gameobjects.push_back(camera);
-
+	//Particles particles;
 	BackGround background;
 	TextRenderHelper text_helper(SCR_WIDTH, SCR_HEIGHT);
 	GuiRenderHelper gui_helper(SCR_WIDTH, SCR_HEIGHT);
@@ -188,6 +188,14 @@ int main()
 				glm::vec2 direction(1, 0);
 				mini_map.Render(camera.position, tmp, direction);
 			}
+			//particles.setPosition(gameobjects[1].position);
+			//particles.setPosition(glm::vec3(0, 0, -2));
+
+			for (int i = 0; i < ParticlesList.size(); i++) {
+				ParticlesList[i].render(camera, projection);
+			}
+			//particles.render(camera, projection);
+
 			background.render(camera, projection);
 			text_helper.Render(scope);
 			gui_helper.Render(scope);
@@ -199,6 +207,10 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	for (int i = 0; i < ParticlesList.size(); i++) {
+		ParticlesList[i].clean();
+	}
+	//particles.clean();
 	background.clean();
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	glfwTerminate();
@@ -280,6 +292,9 @@ void processInput(GLFWwindow *window)
 void updateChildPosRot()
 {
 	camera.updatePosRotFromParent();
+	for (int i = 0; i < ParticlesList.size(); i++) {
+		ParticlesList[i].updatePosRotFromParent();
+	}
 	for (int i = 0; i < gameobjects.size(); i++) {
 		gameobjects[i].updatePosRotFromParent();
 	}
@@ -460,9 +475,9 @@ void creatGameobject() {
 	prefabs.push_back(man);
 
 
-	gameobjects.push_back(prefabs[0]);
+	gameobjects.push_back(prefabs[0]);//dao
 
-	gameobjects.push_back(prefabs[1]);
+	gameobjects.push_back(prefabs[1]);//m4
 	gameobjects[1].localPosition = glm::vec3(0.85, -0.21, 0.15);
 	gameobjects[1].localRotation = glm::vec3(273.0 / 180.0 * PI, -1.2 / 180.0 * PI, 273.0 / 180.0 * PI);
 	MonoBehaviour *shoot = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, false, 0.2f, 200,0);
@@ -471,7 +486,7 @@ void creatGameobject() {
 	gameobjects[1].isActive = true;
 
 
-	gameobjects.push_back(prefabs[2]);
+	gameobjects.push_back(prefabs[2]);//sniper
 	gameobjects[2].localPosition = glm::vec3(1.0, -0.28, 0.1);
 	gameobjects[2].localRotation = glm::vec3(270.0 / 180.0 * PI, 0, 280.0 / 180.0 * PI);
 	MonoBehaviour *shoot1 = new Shoot(&prefabs[3], &gameobjects, &camera, &enemies, true, 1.5f, 200,0);
@@ -479,15 +494,32 @@ void creatGameobject() {
 	gameobjects[2].isActive = false;
 
 
-	gameobjects.push_back(prefabs[3]);
+	gameobjects.push_back(prefabs[3]);//bullet
 
-	gameobjects.push_back(prefabs[4]);
+	gameobjects.push_back(prefabs[4]);//dragon
 	enemies.push_back(&gameobjects[4]);
 	MonoBehaviour *enemyAction = new EnemyAction();
 	gameobjects[4].scripts.push_back(enemyAction);
 
 	gameobjects.push_back(prefabs[5]);
 
+	Particles particles;
+	particles.setSpread(0.125f);
+	particles.setSize(0.005f);
+	particles.setGravity(glm::vec3(0, 0, 0));
+	particles.setLife(0.2f);
+	particles.setBeamspeed(5.0f);
+	ParticlesList.push_back(particles);
+	ParticlesList[0].setParent(gameobjects[1]);
+
+	Particles particles1;
+	particles1.setSpread(1.25f);
+	particles1.setSize(0.5f);
+	particles1.setGravity(glm::vec3(0, 0, 0));
+	particles1.setLife(15.0f);
+	particles1.setBeamspeed(15.0f);
+	ParticlesList.push_back(particles1);
+	ParticlesList[1].setParent(gameobjects[4]);
 
 	// build AABB Tree for dao
 	std::vector<int> used;

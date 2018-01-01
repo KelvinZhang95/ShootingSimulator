@@ -20,6 +20,7 @@
 #include "text_render_helper.h"
 #include "gui_render_helper.h"
 #include "mini_map.h"
+#include "Particles.h"
 
 #include <stdlib.h> 
 #include <time.h> 
@@ -71,6 +72,7 @@ Camera camera(glm::vec3(0.0f, 5.7f, 8.88f));
 vector<GameObject> gameobjects;
 vector<GameObject> prefabs;
 vector<GameObject *> enemies;
+vector<Particles> ParticlesList;
 
 bool isPerspective = true;
 int nowWeapon = 1;

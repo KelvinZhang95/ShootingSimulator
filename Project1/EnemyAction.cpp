@@ -33,7 +33,7 @@ void EnemyAction::update(GLFWwindow * window, GameObject * obj)
 	glm::vec3 front(front4.x, front4.y, front4.z);
 	//cout << "dragon toward" << glm::normalize(front).x << " " << glm::normalize(front).y << " " << glm::normalize(front).z << endl;
 	//cout << "dragon position" << obj->position.x << " " << obj->position.y << " " << obj->position.z << endl;
-	float rate = 0.0f;
+	float rate = 0.1f;
 	obj->position.x += glm::normalize(front).x * rate;
 	obj->position.y += glm::normalize(front).y * rate;
 	obj->position.z += glm::normalize(front).z * rate;

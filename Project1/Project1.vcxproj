@@ -156,6 +156,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="MonoBehaviour.h" />
     <ClInclude Include="Object.h" />
+    <ClInclude Include="Particles.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="Shoot.h" />
     <ClInclude Include="stb_image.h" />
