@@ -38,7 +38,7 @@ void EnemyAction::update(GLFWwindow * window, GameObject * obj)
 	obj->position.y += glm::normalize(front).y * rate;
 	obj->position.z += glm::normalize(front).z * rate;
 	obj->model.collider.updateOnScalePos(obj->scale,obj->position);
-	cout << "dragon fire " << (int)currentTime << endl;
+	//cout << "dragon fire " << (int)currentTime << endl;
 	bool temp = ((int)(currentTime + offsetTime) % 10) > 4;
 	(*ParticlesList)[ParticlesIndex].setIfDisplay(temp);
 
